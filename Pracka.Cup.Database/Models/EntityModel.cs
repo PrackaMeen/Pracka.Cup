@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class EntityModel
+    public abstract class EntityModel
     {
         public int Id { get; set; }
         public DateTime Created { get; set; }

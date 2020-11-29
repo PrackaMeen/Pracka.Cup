@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Pracka.Cup.Database
 {
@@ -6,6 +7,10 @@ namespace Pracka.Cup.Database
     {
         static void Main(string[] args)
         {
+            using (var context = new CupContextFactory().CreateDbContext(null))
+            {
+                context.Database.MigrateAsync();
+            }
             Console.WriteLine("Hello World!");
         }
     }

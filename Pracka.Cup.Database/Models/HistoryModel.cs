@@ -5,13 +5,17 @@
 
     public class HistoryModel : EntityModel
     {
-        public TeamModel HomeTeam { get; set; }
-        public PlayerModel PlayerHomeTeam { get; set; }
+        public int HomeTeamId { get; set; }
+        public virtual TeamModel HomeTeam { get; set; }
+        public int PlayerHomeTeamId { get; set; }
+        public virtual PlayerModel PlayerHomeTeam { get; set; }
         public int GoalsHomeTeam { get; set; }
         public TeamResultEnum ResultKindHomeTeam { get; set; }
 
-        public TeamModel AwayTeam { get; set; }
-        public PlayerModel PlayerAwayTeam { get; set; }
+        public int AwayTeamId { get; set; }
+        public virtual TeamModel AwayTeam { get; set; }
+        public int PlayerAwayTeamId { get; set; }
+        public virtual PlayerModel PlayerAwayTeam { get; set; }
         public int GoalsAwayTeam { get; set; }
         public TeamResultEnum ResultKindAwayTeam { get; set; }
 

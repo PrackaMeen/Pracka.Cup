@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Pracka.Cup.Database.Models;
@@ -16,6 +17,58 @@
         public DbSet<HistoryModel> Histories { get; set; }
         public DbSet<TeamModel> Teams { get; set; }
         public DbSet<PlayerModel> Players { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            if (!options.IsConfigured)
+            {
+                options.UseSqlServer("Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //team
+            modelBuilder.Entity<TeamModel>()
+                .HasKey((team) => team.Id);
+
+            modelBuilder.Entity<TeamModel>()
+               .HasMany((team) => team.PastPlayers)
+               .WithOne((player) => player.SelectedTeam)
+               .HasForeignKey(player => player.SelectedTeamId);
+
+            //player
+            modelBuilder.Entity<PlayerModel>()
+               .HasKey((player) => player.Id);
+
+            //history
+            modelBuilder.Entity<HistoryModel>()
+                .HasKey((history) => history.Id);
+
+            modelBuilder.Entity<HistoryModel>()
+                .HasOne((history) => history.HomeTeam)
+                .WithMany((team) => team.HomeTeamHistories)
+                .HasForeignKey((history) => history.HomeTeamId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<HistoryModel>()
+                .HasOne((history) => history.AwayTeam)
+                .WithMany((team) => team.AwayTeamHistories)
+                .HasForeignKey((history) => history.AwayTeamId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<HistoryModel>()
+                .HasOne((history) => history.PlayerHomeTeam)
+                .WithMany((player) => player.HomeGameHistories)
+                .HasForeignKey((history) => history.PlayerHomeTeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HistoryModel>()
+                .HasOne((history) => history.PlayerAwayTeam)
+                .WithMany((player) => player.AwayGameHistories)
+                .HasForeignKey((history) => history.PlayerAwayTeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 
     public class CupContextFactory : IDesignTimeDbContextFactory<CupContext>
@@ -23,7 +76,7 @@
         public CupContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<CupContext>();
-            optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING"));
+            optionsBuilder.UseSqlServer("Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
 
             return new CupContext(optionsBuilder.Options);
         }
