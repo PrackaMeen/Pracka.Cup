@@ -9,10 +9,11 @@ namespace Pracka.Cup.API.Endpoints
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Pracka.Cup.Database;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Pracka.Cup.API.Models;
+    using Pracka.Cup.Database.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public partial class ApiFunctions
     {
@@ -26,25 +27,10 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var allHistoryModels = _context.Histories.ToList();
-            var allHistories = allHistoryModels.Select((historyModel) =>
-            {
-                return new HistoryDto()
-                {
-                    AwayTeam = _mapper.Map<TeamDto>(historyModel.AwayTeam),
-                    HomeTeam = _mapper.Map<TeamDto>(historyModel.HomeTeam),
-                    GoalsAwayTeam = historyModel.GoalsAwayTeam,
-                    GoalsHomeTeam = historyModel.GoalsHomeTeam,
-                    PlayerAwayTeam = _mapper.Map<PlayerDto>(historyModel.PlayerAwayTeam),
-                    PlayerHomeTeam = _mapper.Map<PlayerDto>(historyModel.PlayerHomeTeam),
-                    GameDate = historyModel.GameDate
-                };
-            });
+            var allHistoryModels = await _context.Histories.ToArrayAsync();
+            var allHistories = _mapper.Map<HistoryModel[], HistoryDto[]>(allHistoryModels);
 
             var responseObj = new
             {
@@ -52,7 +38,6 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = allHistories
             };
 
@@ -64,16 +49,13 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetHistoryById)}.");
 
             string path = req.Path.Value;
             int id = GetIdFromPathPart(regexHistoryId, path, HISTORIES);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var history = _context.Histories
-                .FirstOrDefault((history) => history.Id == id);
+            var history = await _context.Histories
+                .FirstOrDefaultAsync((history) => history.Id == id);
 
             var responseObj = new
             {
@@ -82,7 +64,6 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = history
             };
 

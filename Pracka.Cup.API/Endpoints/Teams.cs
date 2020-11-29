@@ -9,11 +9,11 @@ namespace Pracka.Cup.API.Endpoints
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Pracka.Cup.Database;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public partial class ApiFunctions
     {
@@ -28,12 +28,9 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = TEAMS)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllTeams)}.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var allTeamModels = _context.Teams.ToArray();
+            var allTeamModels = await _context.Teams.ToArrayAsync();
             var allTeams = _mapper.Map<TeamModel[], TeamDto[]>(allTeamModels);
 
             var responseObj = new
@@ -42,7 +39,6 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = allTeams
             };
 
@@ -54,16 +50,13 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_TEAM_BY_ID)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetTeamById)}.");
 
             string path = req.Path.Value;
-            int id = GetIdFromPathPart(regexTeamId, path, PLAYERS);
+            int id = GetIdFromPathPart(regexTeamId, path, TEAMS);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var teamModel = _context.Teams
-                .FirstOrDefault((history) => history.Id == id);
+            var teamModel = await _context.Teams
+                .FirstOrDefaultAsync((history) => history.Id == id);
 
             var responseObj = new
             {
@@ -72,7 +65,6 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = _mapper.Map<TeamModel, TeamDto>(teamModel)
             };
 
@@ -84,13 +76,10 @@ namespace Pracka.Cup.API.Endpoints
            [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_TEAM)] HttpRequest req,
            ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreateTeam)}.");
 
-            string path = req.Path.Value;
-            int id = GetIdFromPathPart(regexPlayerId, path, TEAMS);
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var teamDto = JsonConvert.DeserializeObject<TeamDto>(requestBody);
+            string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+            var teamDto = JsonConvert.DeserializeObject<TeamDto>(requestBodyJson);
 
             var newTeam = new TeamModel()
             {
@@ -100,7 +89,7 @@ namespace Pracka.Cup.API.Endpoints
                 Created = DateTime.Now,
             };
 
-            var createdTeam = _context.Teams.Add(newTeam);
+            var createdTeam = await _context.Teams.AddAsync(newTeam);
             await _context.SaveChangesAsync();
 
             var createdTeamDto = new TeamDto()
@@ -114,7 +103,6 @@ namespace Pracka.Cup.API.Endpoints
             {
                 arguments = new
                 {
-                    id = id,
                     all = req.Query.ToList()
                 },
                 data = teamDto,

@@ -9,11 +9,11 @@ namespace Pracka.Cup.API.Endpoints
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
-    using Pracka.Cup.Database;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public partial class ApiFunctions
     {
@@ -28,12 +28,9 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = PLAYERS)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllPlayers)}.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var allPlayerModels = _context.Players.ToArray();
+            var allPlayerModels = await _context.Players.ToArrayAsync();
             var allPlayers = _mapper.Map<PlayerModel[], PlayerDto[]>(allPlayerModels);
 
             var responseObj = new
@@ -42,7 +39,6 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = allPlayers
             };
 
@@ -54,16 +50,13 @@ namespace Pracka.Cup.API.Endpoints
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_PLAYER_BY_ID)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetPlayerById)}.");
 
             string path = req.Path.Value;
             int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-            var playerModel = _context.Players
-                .FirstOrDefault((history) => history.Id == id);
+            var playerModel = await _context.Players
+                .FirstOrDefaultAsync((history) => history.Id == id);
 
             var responseObj = new
             {
@@ -72,7 +65,6 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                data = data,
                 result = _mapper.Map<PlayerModel, PlayerDto>(playerModel)
             };
 
@@ -84,15 +76,12 @@ namespace Pracka.Cup.API.Endpoints
            [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_PLAYER)] HttpRequest req,
            ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreatePlayer)}.");
 
-            string path = req.Path.Value;
-            int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
+            string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+            var playerDto = JsonConvert.DeserializeObject<PlayerDto>(requestBodyJson);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var playerDto = JsonConvert.DeserializeObject<PlayerDto>(requestBody);
-
-            var selectedTeam = _context.Teams.FirstOrDefault((team) => team.Id == playerDto.SelectedTeam.Id);
+            var selectedTeam = await _context.Teams.FirstOrDefaultAsync((team) => team.Id == playerDto.SelectedTeam.Id);
             if (null == selectedTeam)
             {
                 return new NotFoundObjectResult(new
@@ -111,14 +100,13 @@ namespace Pracka.Cup.API.Endpoints
                 Created = DateTime.Now,
             };
 
-            var createdPlayer = _context.Players.Add(newPlayer);
+            var createdPlayer = await _context.Players.AddAsync(newPlayer);
             await _context.SaveChangesAsync();
 
             var responseObj = new
             {
                 arguments = new
                 {
-                    id = id,
                     all = req.Query.ToList()
                 },
                 data = playerDto,
