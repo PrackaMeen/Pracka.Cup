@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pracka.Cup.Database;
 
 namespace Pracka.Cup.Database.Migrations
 {
     [DbContext(typeof(CupContext))]
-    partial class CupContextModelSnapshot : ModelSnapshot
+    [Migration("20201129192643_InitialCreated")]
+    partial class InitialCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,7 +125,12 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PlayerModelId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PlayerModelId");
 
                     b.ToTable("Teams");
                 });
@@ -162,6 +169,13 @@ namespace Pracka.Cup.Database.Migrations
                         .HasForeignKey("SelectedTeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Pracka.Cup.Database.Models.TeamModel", b =>
+                {
+                    b.HasOne("Pracka.Cup.Database.Models.PlayerModel", null)
+                        .WithMany("PastTeams")
+                        .HasForeignKey("PlayerModelId");
                 });
 #pragma warning restore 612, 618
         }

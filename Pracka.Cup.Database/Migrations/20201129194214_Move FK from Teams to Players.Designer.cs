@@ -10,8 +10,8 @@ using Pracka.Cup.Database;
 namespace Pracka.Cup.Database.Migrations
 {
     [DbContext(typeof(CupContext))]
-    [Migration("20201129161236_InitialCreated")]
-    partial class InitialCreated
+    [Migration("20201129194214_Move FK from Teams to Players")]
+    partial class MoveFKfromTeamstoPlayers
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -125,12 +125,7 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PlayerModelId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PlayerModelId");
 
                     b.ToTable("Teams");
                 });
@@ -169,13 +164,6 @@ namespace Pracka.Cup.Database.Migrations
                         .HasForeignKey("SelectedTeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Pracka.Cup.Database.Models.TeamModel", b =>
-                {
-                    b.HasOne("Pracka.Cup.Database.Models.PlayerModel", null)
-                        .WithMany("PastTeams")
-                        .HasForeignKey("PlayerModelId");
                 });
 #pragma warning restore 612, 618
         }

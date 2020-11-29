@@ -32,14 +32,14 @@
             modelBuilder.Entity<TeamModel>()
                 .HasKey((team) => team.Id);
 
-            modelBuilder.Entity<TeamModel>()
-               .HasMany((team) => team.PastPlayers)
-               .WithOne((player) => player.SelectedTeam)
-               .HasForeignKey(player => player.SelectedTeamId);
-
             //player
             modelBuilder.Entity<PlayerModel>()
                .HasKey((player) => player.Id);
+
+            modelBuilder.Entity<PlayerModel>()
+               .HasOne((player) => player.SelectedTeam)
+               .WithMany((team) => team.PastPlayers)
+               .HasForeignKey((player) => player.SelectedTeamId);
 
             //history
             modelBuilder.Entity<HistoryModel>()

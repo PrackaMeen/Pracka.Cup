@@ -11,6 +11,5 @@
         public virtual TeamModel SelectedTeam { get; set; }
         public virtual ICollection<HistoryModel> HomeGameHistories { get; set; }
         public virtual ICollection<HistoryModel> AwayGameHistories { get; set; }
-        public virtual ICollection<TeamModel> PastTeams { get; set; }
     }
 }
