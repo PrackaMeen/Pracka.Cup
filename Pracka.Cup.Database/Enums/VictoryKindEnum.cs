@@ -1,9 +1,5 @@
 ﻿namespace Pracka.Cup.Database.Enums
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
     public enum TeamResultEnum
     {
         Victory = 1,

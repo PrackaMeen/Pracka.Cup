@@ -1,14 +1,10 @@
-﻿namespace Pracka.Cup.API.Database.Models
+﻿namespace Pracka.Cup.Database.Models
 {
     using Pracka.Cup.Database.Enums;
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
-    public class HistoryModel
+    public class HistoryModel : EntityModel
     {
-        public int Id { get; set; }
-
         public TeamModel HomeTeam { get; set; }
         public PlayerModel PlayerHomeTeam { get; set; }
         public int GoalsHomeTeam { get; set; }

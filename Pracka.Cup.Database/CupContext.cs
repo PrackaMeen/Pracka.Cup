@@ -1,10 +1,11 @@
-﻿namespace Pracka.Cup.API
+﻿namespace Pracka.Cup.Database
 {
     using System;
     using System.Collections.Generic;
     using System.Text;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Pracka.Cup.Database.Models;
 
     public class CupContext : DbContext
     {
@@ -12,27 +13,9 @@
             : base(options)
         { }
 
-        public DbSet<Blog> Histories { get; set; }
-        public DbSet<Post> Teams { get; set; }
-        public DbSet<Post> Players { get; set; }
-    }
-
-    public class Blog
-    {
-        public int BlogId { get; set; }
-        public string Url { get; set; }
-
-        public ICollection<Post> Posts { get; set; }
-    }
-
-    public class Post
-    {
-        public int PostId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-
-        public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public DbSet<HistoryModel> Histories { get; set; }
+        public DbSet<TeamModel> Teams { get; set; }
+        public DbSet<PlayerModel> Players { get; set; }
     }
 
     public class CupContextFactory : IDesignTimeDbContextFactory<CupContext>
