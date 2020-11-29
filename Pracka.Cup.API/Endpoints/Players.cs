@@ -102,6 +102,7 @@ namespace Pracka.Cup.API.Endpoints
 
             var createdPlayer = await _context.Players.AddAsync(newPlayer);
             await _context.SaveChangesAsync();
+            var createdPlayerDto = _mapper.Map<PlayerModel, PlayerDto>(createdPlayer.Entity);
 
             var responseObj = new
             {
@@ -110,7 +111,7 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 data = playerDto,
-                result = _mapper.Map<PlayerDto>(createdPlayer),
+                result = createdPlayerDto,
             };
 
             return new OkObjectResult(responseObj);

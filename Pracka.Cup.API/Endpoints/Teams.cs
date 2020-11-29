@@ -92,12 +92,7 @@ namespace Pracka.Cup.API.Endpoints
             var createdTeam = await _context.Teams.AddAsync(newTeam);
             await _context.SaveChangesAsync();
 
-            var createdTeamDto = new TeamDto()
-            {
-                Id = createdTeam.Entity.Id,
-                Icon = createdTeam.Entity.Icon,
-                Name = createdTeam.Entity.Name
-            };
+            var createdTeamDto = _mapper.Map<TeamModel, TeamDto>(createdTeam.Entity);
 
             var responseObj = new
             {
