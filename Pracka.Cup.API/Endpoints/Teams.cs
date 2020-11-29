@@ -23,7 +23,7 @@ namespace Pracka.Cup.API.Endpoints
 
         Regex regexTeamId = new Regex("teams/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        [FunctionName("GetAllTeams")]
+        [FunctionName(nameof(GetAllTeams))]
         public async Task<IActionResult> GetAllTeams(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = TEAMS)] HttpRequest req,
             ILogger log)
@@ -33,7 +33,8 @@ namespace Pracka.Cup.API.Endpoints
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-            var allTeams = _context.Teams.ToList();
+            var allTeamModels = _context.Teams.ToArray();
+            var allTeams = _mapper.Map<TeamModel[], TeamDto[]>(allTeamModels);
 
             var responseObj = new
             {
@@ -48,7 +49,7 @@ namespace Pracka.Cup.API.Endpoints
             return new OkObjectResult(responseObj);
         }
 
-        [FunctionName("GetTeamById")]
+        [FunctionName(nameof(GetTeamById))]
         public async Task<IActionResult> GetTeamById(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_TEAM_BY_ID)] HttpRequest req,
             ILogger log)
@@ -61,7 +62,7 @@ namespace Pracka.Cup.API.Endpoints
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-            var team = _context.Teams
+            var teamModel = _context.Teams
                 .FirstOrDefault((history) => history.Id == id);
 
             var responseObj = new
@@ -72,13 +73,13 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 data = data,
-                result = team
+                result = _mapper.Map<TeamModel, TeamDto>(teamModel)
             };
 
             return new OkObjectResult(responseObj);
         }
 
-        [FunctionName("CreateTeam")]
+        [FunctionName(nameof(CreateTeam))]
         public async Task<IActionResult> CreateTeam(
            [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_TEAM)] HttpRequest req,
            ILogger log)

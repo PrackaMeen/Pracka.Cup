@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Pracka.Cup.Database.Data;
     using Pracka.Cup.Database.Models;
 
     public class CupContext : DbContext
@@ -68,6 +69,9 @@
                 .WithMany((player) => player.AwayGameHistories)
                 .HasForeignKey((history) => history.PlayerAwayTeamId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<TeamModel>().HasData(InitialTeams.Get());
         }
     }
 

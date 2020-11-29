@@ -12,6 +12,7 @@ namespace Pracka.Cup.API.Endpoints
     using Pracka.Cup.Database;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Pracka.Cup.API.Models;
 
     public partial class ApiFunctions
     {
@@ -20,7 +21,7 @@ namespace Pracka.Cup.API.Endpoints
 
         Regex regexHistoryId = new Regex("histories/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        [FunctionName("GetAllHistories")]
+        [FunctionName(nameof(GetAllHistories))]
         public async Task<IActionResult> GetAllHistories(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
             ILogger log)
@@ -30,7 +31,20 @@ namespace Pracka.Cup.API.Endpoints
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-            var allHistories = _context.Histories.ToList();
+            var allHistoryModels = _context.Histories.ToList();
+            var allHistories = allHistoryModels.Select((historyModel) =>
+            {
+                return new HistoryDto()
+                {
+                    AwayTeam = _mapper.Map<TeamDto>(historyModel.AwayTeam),
+                    HomeTeam = _mapper.Map<TeamDto>(historyModel.HomeTeam),
+                    GoalsAwayTeam = historyModel.GoalsAwayTeam,
+                    GoalsHomeTeam = historyModel.GoalsHomeTeam,
+                    PlayerAwayTeam = _mapper.Map<PlayerDto>(historyModel.PlayerAwayTeam),
+                    PlayerHomeTeam = _mapper.Map<PlayerDto>(historyModel.PlayerHomeTeam),
+                    GameDate = historyModel.GameDate
+                };
+            });
 
             var responseObj = new
             {
@@ -45,7 +59,7 @@ namespace Pracka.Cup.API.Endpoints
             return new OkObjectResult(responseObj);
         }
 
-        [FunctionName("GetHistoryById")]
+        [FunctionName(nameof(GetHistoryById))]
         public async Task<IActionResult> GetHistoryById(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,
             ILogger log)

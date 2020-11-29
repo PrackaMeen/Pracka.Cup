@@ -1,5 +1,7 @@
 ﻿namespace Pracka.Cup.API.Endpoints
 {
+    using AutoMapper;
+    using Pracka.Cup.API.Mappers;
     using Pracka.Cup.Database;
     using System;
     using System.Collections.Generic;
@@ -27,9 +29,11 @@
         }
 
         private readonly CupContext _context;
+        private readonly IMapper _mapper;
         public ApiFunctions()
         {
             _context = new CupContextFactory().CreateDbContext(null);
+            _mapper = GlobalMapper.Activate();
         }
     }
 }
