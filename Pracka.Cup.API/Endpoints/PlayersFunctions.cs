@@ -28,8 +28,7 @@ namespace Pracka.Cup.API.Endpoints
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllPlayers)}.");
 
-            var allPlayerModels = await _context.Players.ToArrayAsync();
-            var allPlayers = _mapper.Map<PlayerModel[], PlayerDto[]>(allPlayerModels);
+            var allPlayerDtos = await _playersService.GetAllPlayers();
 
             var responseObj = new
             {
@@ -37,7 +36,7 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                result = allPlayers
+                result = allPlayerDtos
             };
 
             return new OkObjectResult(responseObj);
@@ -53,8 +52,7 @@ namespace Pracka.Cup.API.Endpoints
             string path = req.Path.Value;
             int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
 
-            var playerModel = await _context.Players
-                .FirstOrDefaultAsync((history) => history.Id == id);
+            var playerDto = await _playersService.GetPlayerBy(id);
 
             var responseObj = new
             {
@@ -63,7 +61,7 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                result = _mapper.Map<PlayerModel, PlayerDto>(playerModel)
+                result = playerDto
             };
 
             return new OkObjectResult(responseObj);
@@ -79,23 +77,7 @@ namespace Pracka.Cup.API.Endpoints
             string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
             var createPlayerDto = JsonConvert.DeserializeObject<CreatePlayerDto>(requestBodyJson);
 
-            var selectedTeam = await _context.Teams.FirstOrDefaultAsync((team) => team.Id == createPlayerDto.SelectedTeamId);
-            if (null == selectedTeam)
-            {
-                return new NotFoundObjectResult(new
-                {
-                    message = $"Not existing selected team with id {createPlayerDto.SelectedTeamId}"
-                });
-            }
-
-            var newPlayer = _mapper.Map<CreatePlayerDto, PlayerModel>(createPlayerDto);
-            newPlayer.SelectedTeam = selectedTeam;
-            newPlayer.Modified = newPlayer.Created = DateTime.Now;
-
-            var createdPlayer = await _context.Players.AddAsync(newPlayer);
-            await _context.SaveChangesAsync();
-
-            var createdPlayerDto = _mapper.Map<PlayerModel, PlayerDto>(createdPlayer.Entity);
+            var newPlayerDto = await _playersService.CreatePlayer(createPlayerDto);
 
             var responseObj = new
             {
@@ -104,7 +86,7 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 data = createPlayerDto,
-                result = createdPlayerDto,
+                result = newPlayerDto,
             };
 
             return new OkObjectResult(responseObj);

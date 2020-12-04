@@ -28,8 +28,7 @@ namespace Pracka.Cup.API.Endpoints
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllTeams)}.");
 
-            var allTeamModels = await _context.Teams.ToArrayAsync();
-            var allTeams = _mapper.Map<TeamModel[], TeamDto[]>(allTeamModels);
+            var allTeamDtos = await _teamsService.GetAllTeams();
 
             var responseObj = new
             {
@@ -37,7 +36,7 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                result = allTeams
+                result = allTeamDtos
             };
 
             return new OkObjectResult(responseObj);
@@ -53,8 +52,7 @@ namespace Pracka.Cup.API.Endpoints
             string path = req.Path.Value;
             int id = GetIdFromPathPart(regexTeamId, path, TEAMS);
 
-            var teamModel = await _context.Teams
-                .FirstOrDefaultAsync((history) => history.Id == id);
+            var teamDto = await _teamsService.GetTeamBy(id);
 
             var responseObj = new
             {
@@ -63,7 +61,7 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                result = _mapper.Map<TeamModel, TeamDto>(teamModel)
+                result = teamDto
             };
 
             return new OkObjectResult(responseObj);
@@ -79,13 +77,7 @@ namespace Pracka.Cup.API.Endpoints
             string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
             var createTeamDto = JsonConvert.DeserializeObject<CreateTeamDto>(requestBodyJson);
 
-            var newTeam = _mapper.Map<CreateTeamDto, TeamModel>(createTeamDto);
-            newTeam.Modified = newTeam.Created = DateTime.Now;
-
-            var createdTeam = await _context.Teams.AddAsync(newTeam);
-            await _context.SaveChangesAsync();
-
-            var createdTeamDto = _mapper.Map<TeamModel, TeamDto>(createdTeam.Entity);
+            var newTeamDto = await _teamsService.CreateTeam(createTeamDto);
 
             var responseObj = new
             {
@@ -94,7 +86,7 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 data = createTeamDto,
-                result = createdTeamDto
+                result = newTeamDto
             };
 
             return new OkObjectResult(responseObj);

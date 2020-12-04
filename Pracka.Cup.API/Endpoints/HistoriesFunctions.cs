@@ -28,8 +28,7 @@ namespace Pracka.Cup.API.Endpoints
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
 
-            var allHistoryModels = await _context.Histories.ToArrayAsync();
-            var allHistories = _mapper.Map<HistoryModel[], HistoryDto[]>(allHistoryModels);
+            var historyDtos = await _historiesService.GetAllHistories();
 
             var responseObj = new
             {
@@ -37,7 +36,7 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                result = allHistories
+                result = historyDtos
             };
 
             return new OkObjectResult(responseObj);
@@ -53,8 +52,7 @@ namespace Pracka.Cup.API.Endpoints
             string path = req.Path.Value;
             int id = GetIdFromPathPart(regexHistoryId, path, HISTORIES);
 
-            var history = await _context.Histories
-                .FirstOrDefaultAsync((history) => history.Id == id);
+            var historyDto = await _historiesService.GetHistoryBy(id);
 
             var responseObj = new
             {
@@ -63,7 +61,7 @@ namespace Pracka.Cup.API.Endpoints
                     id = id,
                     all = req.Query.ToList()
                 },
-                result = history
+                result = historyDto
             };
 
             return new OkObjectResult(responseObj);
@@ -79,19 +77,7 @@ namespace Pracka.Cup.API.Endpoints
             string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
             var createHistoryDto = JsonConvert.DeserializeObject<CreateHistoryDto>(requestBodyJson);
 
-            if (null == createHistoryDto.GameDate)
-            {
-                createHistoryDto.GameDate = DateTime.UtcNow;
-            }
-            var newHistoryModel = _mapper.Map<CreateHistoryDto, HistoryModel>(createHistoryDto);
-            newHistoryModel.ResultKindAwayTeam = Database.Enums.TeamResultEnum.Lost;    
-            newHistoryModel.ResultKindHomeTeam = Database.Enums.TeamResultEnum.Victory;
-            newHistoryModel.Modified = newHistoryModel.Created = DateTime.UtcNow;
-
-            var createdHistory = await _context.Histories.AddAsync(newHistoryModel);
-            await _context.SaveChangesAsync();
-
-            var createdHistoryDto = _mapper.Map<HistoryModel, HistoryDto>(createdHistory.Entity);
+            var newHistoryDto = await _historiesService.CreateHistory(createHistoryDto);
 
             var responseObj = new
             {
@@ -100,7 +86,7 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 data = createHistoryDto,
-                result = createdHistoryDto,
+                result = newHistoryDto,
             };
 
             return new OkObjectResult(responseObj);

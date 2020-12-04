@@ -2,6 +2,8 @@
 {
     using AutoMapper;
     using Pracka.Cup.API.Mappers;
+    using Pracka.Cup.API.Services;
+    using Pracka.Cup.API.Services.Abstractions;
     using Pracka.Cup.Database;
     using System;
     using System.Collections.Generic;
@@ -30,10 +32,16 @@
 
         private readonly CupContext _context;
         private readonly IMapper _mapper;
+        private readonly IHistoriesService _historiesService;
+        private readonly IPlayersService _playersService;
+        private readonly ITeamsService _teamsService;
         public ApiFunctions()
         {
             _context = new CupContextFactory().CreateDbContext(null);
             _mapper = GlobalMapper.Activate();
+            _historiesService = new HistoriesService(_context, _mapper);
+            _playersService = new PlayersService(_context, _mapper);
+            _teamsService = new TeamsService(_context, _mapper);
         }
     }
 }
