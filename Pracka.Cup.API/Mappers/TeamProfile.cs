@@ -9,6 +9,7 @@
         public TeamProfile()
         {
             CreateMap<TeamModel, TeamDto>();
+            CreateMap<CreateTeamDto, TeamModel>();
         }
     }
 }

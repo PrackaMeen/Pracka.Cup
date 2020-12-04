@@ -77,15 +77,10 @@ namespace Pracka.Cup.API.Endpoints
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreateTeam)}.");
 
             string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
-            var teamDto = JsonConvert.DeserializeObject<TeamDto>(requestBodyJson);
+            var createTeamDto = JsonConvert.DeserializeObject<CreateTeamDto>(requestBodyJson);
 
-            var newTeam = new TeamModel()
-            {
-                Name = teamDto.Name,
-                Icon = teamDto.Icon,
-                Modified = DateTime.Now,
-                Created = DateTime.Now,
-            };
+            var newTeam = _mapper.Map<CreateTeamDto, TeamModel>(createTeamDto);
+            newTeam.Modified = newTeam.Created = DateTime.Now;
 
             var createdTeam = await _context.Teams.AddAsync(newTeam);
             await _context.SaveChangesAsync();
@@ -98,7 +93,7 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                data = teamDto,
+                data = createTeamDto,
                 result = createdTeamDto
             };
 

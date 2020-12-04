@@ -16,5 +16,8 @@
         Task<IActionResult> GetHistoryById(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,
             ILogger log);
+        Task<IActionResult> CreateHistory(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_HISTORY)] HttpRequest req,
+            ILogger log);
     }
 }

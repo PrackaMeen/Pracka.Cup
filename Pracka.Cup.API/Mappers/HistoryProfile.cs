@@ -9,6 +9,7 @@
         public HistoryProfile()
         {
             CreateMap<HistoryModel, HistoryDto>();
+            CreateMap<CreateHistoryDto, HistoryModel>();
         }
     }
 }

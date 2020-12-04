@@ -9,6 +9,7 @@
         public PlayerProfile()
         {
             CreateMap<PlayerModel, PlayerDto>();
+            CreateMap<CreatePlayerDto, PlayerModel>();
         }
     }
 }

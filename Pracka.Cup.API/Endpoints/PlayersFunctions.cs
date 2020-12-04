@@ -23,7 +23,7 @@ namespace Pracka.Cup.API.Endpoints
 
         [FunctionName(nameof(GetAllPlayers))]
         public async Task<IActionResult> GetAllPlayers(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route =  PLAYERS)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = PLAYERS)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllPlayers)}.");
@@ -77,29 +77,24 @@ namespace Pracka.Cup.API.Endpoints
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreatePlayer)}.");
 
             string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
-            var playerDto = JsonConvert.DeserializeObject<PlayerDto>(requestBodyJson);
+            var createPlayerDto = JsonConvert.DeserializeObject<CreatePlayerDto>(requestBodyJson);
 
-            var selectedTeam = await _context.Teams.FirstOrDefaultAsync((team) => team.Id == playerDto.SelectedTeam.Id);
+            var selectedTeam = await _context.Teams.FirstOrDefaultAsync((team) => team.Id == createPlayerDto.SelectedTeamId);
             if (null == selectedTeam)
             {
                 return new NotFoundObjectResult(new
                 {
-                    message = "Not existing selected team"
+                    message = $"Not existing selected team with id {createPlayerDto.SelectedTeamId}"
                 });
             }
 
-            var newPlayer = new PlayerModel()
-            {
-                FirstName = playerDto.FirstName,
-                LastName = playerDto.LastName,
-                Nickname = playerDto.Nickname,
-                SelectedTeam = selectedTeam,
-                Modified = DateTime.Now,
-                Created = DateTime.Now,
-            };
+            var newPlayer = _mapper.Map<CreatePlayerDto, PlayerModel>(createPlayerDto);
+            newPlayer.SelectedTeam = selectedTeam;
+            newPlayer.Modified = newPlayer.Created = DateTime.Now;
 
             var createdPlayer = await _context.Players.AddAsync(newPlayer);
             await _context.SaveChangesAsync();
+
             var createdPlayerDto = _mapper.Map<PlayerModel, PlayerDto>(createdPlayer.Entity);
 
             var responseObj = new
@@ -108,7 +103,7 @@ namespace Pracka.Cup.API.Endpoints
                 {
                     all = req.Query.ToList()
                 },
-                data = playerDto,
+                data = createPlayerDto,
                 result = createdPlayerDto,
             };
 

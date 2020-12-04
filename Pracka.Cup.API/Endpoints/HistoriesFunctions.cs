@@ -23,8 +23,8 @@ namespace Pracka.Cup.API.Endpoints
 
         [FunctionName(nameof(GetAllHistories))]
         public async Task<IActionResult> GetAllHistories(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
-            ILogger log)
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
+           ILogger log)
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
 
@@ -64,6 +64,43 @@ namespace Pracka.Cup.API.Endpoints
                     all = req.Query.ToList()
                 },
                 result = history
+            };
+
+            return new OkObjectResult(responseObj);
+        }
+
+        [FunctionName(nameof(CreateHistory))]
+        public async Task<IActionResult> CreateHistory(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_HISTORY)] HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreateHistory)}.");
+
+            string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+            var createHistoryDto = JsonConvert.DeserializeObject<CreateHistoryDto>(requestBodyJson);
+
+            if (null == createHistoryDto.GameDate)
+            {
+                createHistoryDto.GameDate = DateTime.UtcNow;
+            }
+            var newHistoryModel = _mapper.Map<CreateHistoryDto, HistoryModel>(createHistoryDto);
+            newHistoryModel.ResultKindAwayTeam = Database.Enums.TeamResultEnum.Lost;    
+            newHistoryModel.ResultKindHomeTeam = Database.Enums.TeamResultEnum.Victory;
+            newHistoryModel.Modified = newHistoryModel.Created = DateTime.UtcNow;
+
+            var createdHistory = await _context.Histories.AddAsync(newHistoryModel);
+            await _context.SaveChangesAsync();
+
+            var createdHistoryDto = _mapper.Map<HistoryModel, HistoryDto>(createdHistory.Entity);
+
+            var responseObj = new
+            {
+                arguments = new
+                {
+                    all = req.Query.ToList()
+                },
+                data = createHistoryDto,
+                result = createdHistoryDto,
             };
 
             return new OkObjectResult(responseObj);
