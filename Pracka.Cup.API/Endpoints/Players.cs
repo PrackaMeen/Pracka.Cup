@@ -14,18 +14,16 @@ namespace Pracka.Cup.API.Endpoints
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
     using Microsoft.EntityFrameworkCore;
+    using Pracka.Cup.API.Endpoints.Abstractions;
+    using static Pracka.Cup.API.Endpoints.Constants.PlayersEndpoints;
 
-    public partial class ApiFunctions
+    public partial class ApiFunctions : IPlayersEndpoints
     {
-        const string PLAYERS = "players";
-        const string GET_PLAYER_BY_ID = "players/{id}";
-        const string CREATE_PLAYER = "players/create";
-
-        Regex regexPlayerId = new Regex("players/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        readonly Regex regexPlayerId = new Regex("players/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         [FunctionName(nameof(GetAllPlayers))]
         public async Task<IActionResult> GetAllPlayers(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = PLAYERS)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route =  PLAYERS)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllPlayers)}.");

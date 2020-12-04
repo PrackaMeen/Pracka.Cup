@@ -14,14 +14,12 @@ namespace Pracka.Cup.API.Endpoints
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
     using Microsoft.EntityFrameworkCore;
+    using Pracka.Cup.API.Endpoints.Abstractions;
+    using static Pracka.Cup.API.Endpoints.Constants.TeamsEndpoints;
 
-    public partial class ApiFunctions
+    public partial class ApiFunctions : ITeamsEndpoints
     {
-        const string TEAMS = "teams";
-        const string GET_TEAM_BY_ID = "teams/{id}";
-        const string CREATE_TEAM = "teams/create";
-
-        Regex regexTeamId = new Regex("teams/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        readonly Regex regexTeamId = new Regex("teams/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         [FunctionName(nameof(GetAllTeams))]
         public async Task<IActionResult> GetAllTeams(

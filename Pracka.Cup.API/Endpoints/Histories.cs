@@ -14,13 +14,12 @@ namespace Pracka.Cup.API.Endpoints
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
     using Microsoft.EntityFrameworkCore;
+    using Pracka.Cup.API.Endpoints.Abstractions;
+    using static Pracka.Cup.API.Endpoints.Constants.HistoriesEndpoints;
 
-    public partial class ApiFunctions
+    public partial class ApiFunctions : IHistoriesEndpoints
     {
-        const string HISTORIES = "histories";
-        const string GET_HISTORY_BY_ID = "histories/{id}";
-
-        Regex regexHistoryId = new Regex("histories/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        readonly Regex regexHistoryId = new Regex("histories/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         [FunctionName(nameof(GetAllHistories))]
         public async Task<IActionResult> GetAllHistories(
