@@ -70,8 +70,8 @@
                 .HasForeignKey((history) => history.PlayerAwayTeamId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             modelBuilder.Entity<TeamModel>().HasData(InitialTeams.Get());
+            modelBuilder.Entity<PlayerModel>().HasData(InitialPlayers.Get());
         }
     }
 
