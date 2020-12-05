@@ -1,3 +1,4 @@
+import { GameType } from "./game-type-enum";
 import { PlayerDto } from "./player-dto";
 import { TeamDto } from "./team-dto";
 
@@ -12,4 +13,5 @@ export type HistoryDto = {
     goalsAwayTeam: number
 
     gameDateUTC: Date
+    gameType: GameType
 }

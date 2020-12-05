@@ -5,6 +5,8 @@ import { Box, Button, makeStyles, TextField, } from "@material-ui/core"
 import { getEmblemByType } from "../../components/emblems/helpers"
 import { PossibleEmblems } from "../../components/emblems/types"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
+import { GameType } from '../../api/models/game-type-enum'
+import * as historiesService from "../../services/histories-service"
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -61,11 +63,13 @@ const WinButton = (props: {
     label: string,
     emblemType?: PossibleEmblems,
     classes: Partial<Record<WinButtonClasses, string>>
+    onClick: () => void
 }) => {
     const {
         label,
         emblemType,
-        classes
+        classes,
+        onClick: handleClick
     } = props
 
     return (
@@ -76,6 +80,10 @@ const WinButton = (props: {
             startIcon={emblemType && getEmblemByType(emblemType)({
                 className: classes?.buttonEmblem
             })}
+            endIcon={emblemType && getEmblemByType(emblemType)({
+                className: classes?.buttonEmblem
+            })}
+            onClick={handleClick}
         >
             <span style={{ width: '80%' }}>{label}</span>
         </Button>
@@ -122,10 +130,10 @@ const EmblemCarousel = (props: {
 
 const initialState = {
     leftScoreValue: 0,
-    leftEmblem: 'BOSTON_BRUINS' as PossibleEmblems,
+    leftEmblem: 'BUFFALO_SABRES' as PossibleEmblems,
     leftEmblemIndex: 0,
     rightScoreValue: 0,
-    rightEmblem: 'BUFFALO_SABRES' as PossibleEmblems,
+    rightEmblem: 'BOSTON_BRUINS' as PossibleEmblems,
     rightEmblemIndex: 0,
     allEmblems: ['BUFFALO_SABRES', 'BOSTON_BRUINS', 'PHILADELPHIA_FLYERS'] as PossibleEmblems[]
 }
@@ -134,11 +142,12 @@ export default function NewGameMobileView(props: NewGameViewProps) {
     const classes = useStyles()
     const [state, setState] = React.useState({ ...initialState })
 
-    const winnerEmblem: PossibleEmblems | undefined = state.leftScoreValue > state.rightScoreValue
-        ? state.leftEmblem
-        : state.leftScoreValue < state.rightScoreValue
-            ? state.rightEmblem
-            : undefined
+    const winnerEmblem: PossibleEmblems | undefined
+        = state.leftScoreValue > state.rightScoreValue
+            ? state.leftEmblem
+            : state.leftScoreValue < state.rightScoreValue
+                ? state.rightEmblem
+                : undefined
 
     React.useEffect(() => {
         console.log(state)
@@ -227,6 +236,21 @@ export default function NewGameMobileView(props: NewGameViewProps) {
         )
     }, [state.rightEmblem])
 
+    function handleWinButtonClick(gameType: GameType) {
+        return function () {
+            historiesService.saveGameHistory({
+                gameDateUTC: new Date(),
+                awayTeamId: 1,
+                playerAwayTeamId: 1,
+                goalsAwayTeam: state.rightScoreValue,
+                homeTeamId: 2,
+                playerHomeTeamId: 2,
+                goalsHomeTeam: state.leftScoreValue,
+                gameType,
+            })
+        }
+    }
+
     return (
         <MobileSiteMenu>
             <div>
@@ -294,6 +318,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         }}
                         label={'Vyhra'}
                         emblemType={winnerEmblem}
+                        onClick={handleWinButtonClick(GameType.CLASSIC)}
                     />
                     <WinButton
                         classes={{
@@ -302,6 +327,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         }}
                         label={'Po predlzeni'}
                         emblemType={winnerEmblem}
+                        onClick={handleWinButtonClick(GameType.OVERTIME)}
                     />
                     <WinButton
                         classes={{
@@ -310,6 +336,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         }}
                         label={'Po najazdoch'}
                         emblemType={winnerEmblem}
+                        onClick={handleWinButtonClick(GameType.SHOOTOUT)}
                     />
                 </Box>
             </div>

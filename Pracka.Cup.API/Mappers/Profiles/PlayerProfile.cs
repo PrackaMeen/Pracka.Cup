@@ -1,4 +1,4 @@
-﻿namespace Pracka.Cup.API.Mappers
+﻿namespace Pracka.Cup.API.Mappers.Profiles
 {
     using AutoMapper;
     using Pracka.Cup.API.Models;

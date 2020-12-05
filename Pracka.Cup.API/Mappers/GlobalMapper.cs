@@ -1,6 +1,7 @@
 ﻿namespace Pracka.Cup.API.Mappers
 {
     using AutoMapper;
+    using Pracka.Cup.API.Mappers.Profiles;
 
     internal class GlobalMapper
     {

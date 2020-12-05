@@ -1,5 +1,6 @@
 import * as historiesEndpoints from '../api/endpoints/histories-endpoints'
 import { CreateHistoryDto } from '../api/models/create-history-dto'
+import { GameType } from '../api/models/game-type-enum'
 import { HistoryDto } from '../api/models/history-dto'
 import { PossibleEmblems } from '../components/emblems/types'
 import { HistoryViewModelType, HistoryViewModelRowType } from '../models/history-view-data'
@@ -8,12 +9,24 @@ function mapIconToEmblem(icon: string): PossibleEmblems {
     return icon as PossibleEmblems
 }
 
-function toHistoryViewModelRowType(historyDto: HistoryDto) {
+function toHistoryViewModelRowType({
+    id,
+    gameType,
+    goalsHomeTeam,
+    homeTeam: { icon: homeTeamIcon },
+    goalsAwayTeam,
+    awayTeam: { icon: awayTeamIcon }
+}: HistoryDto) {
+    const nonClassic = GameType.CLASSIC === gameType
+        ? ''
+        : GameType.OVERTIME === gameType
+            ? 'pp'
+            : 'pn'
     var historyViewModelRow: HistoryViewModelRowType = {
-        key: `${historyDto.id}`,
-        leftTeam: mapIconToEmblem(historyDto.homeTeam.icon),
-        score: `${historyDto.goalsHomeTeam} - ${historyDto.goalsAwayTeam}`,
-        rightTeam: mapIconToEmblem(historyDto.awayTeam.icon)
+        key: `${id}`,
+        leftTeam: mapIconToEmblem(homeTeamIcon),
+        score: `${goalsHomeTeam} - ${goalsAwayTeam}${nonClassic}`,
+        rightTeam: mapIconToEmblem(awayTeamIcon)
     }
 
     return historyViewModelRow

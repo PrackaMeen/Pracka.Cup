@@ -19,6 +19,7 @@
         public int GoalsAwayTeam { get; set; }
         public TeamResultEnum ResultKindAwayTeam { get; set; }
 
+        public GameTypeEnum GameType { get; set; }
         public DateTime GameDateUTC { get; set; }
     }
 }

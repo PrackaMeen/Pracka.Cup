@@ -1,5 +1,6 @@
 ﻿namespace Pracka.Cup.API.Models
 {
+    using Pracka.Cup.Database.Enums;
     using System;
 
     public class HistoryDto
@@ -13,6 +14,7 @@
         public PlayerDto PlayerAwayTeam { get; set; }
         public int GoalsAwayTeam { get; set; }
 
+        public GameTypeEnum GameType { get; set; }
         public DateTime GameDateUTC { get; set; }
         public DateTime CreatedUTC { get; set; }
         public DateTime ModifiedUTC { get; set; }

@@ -2,6 +2,7 @@
 {
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
+    using Pracka.Cup.API.Mappers.Extensions;
     using Pracka.Cup.API.Models;
     using Pracka.Cup.API.Services.Abstractions;
     using Pracka.Cup.Database;
@@ -45,13 +46,13 @@
                 createHistoryDto.GameDateUTC = DateTime.UtcNow;
             }
 
-            var historyToBeCreated = _mapper.Map<CreateHistoryDto, HistoryModel>(createHistoryDto);
+            var historyToBeCreated = _mapper.ToHistoryModel(createHistoryDto);
             historyToBeCreated.CreatedUTC = historyToBeCreated.ModifiedUTC = DateTime.UtcNow;
 
             var createdHistory = await _context.Histories.AddAsync(historyToBeCreated);
             await _context.SaveChangesAsync();
 
-            var historyDto = _mapper.Map<HistoryModel, HistoryDto>(createdHistory.Entity);
+            var historyDto = _mapper.ToHistoryDto(createdHistory.Entity);
             historyDto.AwayTeam = _mapper.Map<TeamModel, TeamDto>(awayTeam);
             historyDto.HomeTeam = _mapper.Map<TeamModel, TeamDto>(homeTeam);
             historyDto.PlayerAwayTeam = _mapper.Map<PlayerModel, PlayerDto>(playerAwayTeam);
@@ -62,7 +63,7 @@
         public async Task<HistoryDto> GetHistoryBy(int id)
         {
             var foundHistory = await _context.Histories.FirstOrDefaultAsync((history) => id == history.Id);
-            var foundHistoryDto = _mapper.Map<HistoryModel, HistoryDto>(foundHistory);
+            var foundHistoryDto = _mapper.ToHistoryDto(foundHistory);
             return foundHistoryDto;
         }
         private async Task<IEnumerable<HistoryDto>> GetAllHistories(bool withTeamsDetail, bool withPlayersDetail)
@@ -86,7 +87,7 @@
                 }
             }
 
-            var foundHistoriesDtos = _mapper.Map<HistoryModel[], HistoryDto[]>(foundHistories);
+            var foundHistoriesDtos = foundHistories.Select(_mapper.ToHistoryDto);
             return foundHistoriesDtos;
         }
         public async Task<IEnumerable<HistoryDto>> GetAllHistories()
