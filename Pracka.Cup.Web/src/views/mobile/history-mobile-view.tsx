@@ -2,9 +2,10 @@ import React from "react"
 import { HistoryViewProps } from "../types"
 import { getEmblemByType } from "../../components/emblems/helpers"
 import { PossibleEmblems } from "../../components/emblems/types"
-import { HistoryViewModelRowType } from "../../models"
-import { dummyHistoryViewModel } from "../../models/mocks/dummyHistoryViewModel"
+import { HistoryViewModelRowType, HistoryViewModelType } from "../../models"
+//import { dummyHistoryViewModel } from "../../models/mocks/dummyHistoryViewModel"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
+import * as historiesService from '../../services/histories-service'
 
 const leftIconStyle: React.CSSProperties = {
     height: '4em',
@@ -128,22 +129,32 @@ function getDateString(date: Date) {
 }
 
 export default function HistoryMobileView(props: HistoryViewProps) {
+    const [historyItems, setHistoryItems] = React.useState<HistoryViewModelType[]>([])
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            let newHistoryItems = await historiesService.getFullHistory()
+            setHistoryItems(newHistoryItems.reverse())
+        }
+
+        fetchData()
+    }, [])
 
     return (
-            <MobileSiteMenu>
-                <ul style={{ padding: '1em 0em' }}>
-                    {dummyHistoryViewModel.map(({ date, rows }) => {
-                        return (
-                            <>
-                                <DateListItem
-                                    key={getDateString(date)}
-                                    label={getDateString(date)}
-                                />
-                                {rows.map(toHistoryListItem)}
-                            </>
-                        )
-                    })}
-                </ul>
-            </MobileSiteMenu>
+        <MobileSiteMenu>
+            <ul style={{ padding: '1em 0em' }}>
+                {historyItems.map(({ date, rows }, index) => {
+                    return (
+                        <React.Fragment key={date.toISOString() + index}>
+                            <DateListItem
+                                key={getDateString(date)}
+                                label={getDateString(date)}
+                            />
+                            {rows.map(toHistoryListItem)}
+                        </React.Fragment>
+                    )
+                })}
+            </ul>
+        </MobileSiteMenu>
     )
 }
