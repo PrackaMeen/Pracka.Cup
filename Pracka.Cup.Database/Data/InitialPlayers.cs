@@ -18,8 +18,8 @@
                    FirstName = "Player",
                    LastName = "1",
                    Nickname = "Player1",
-                   Created = DateTime.UtcNow,
-                   Modified = DateTime.UtcNow,
+                   CreatedUTC = DateTime.UtcNow,
+                   ModifiedUTC = DateTime.UtcNow,
                    SelectedTeamId = 2
                 }, new PlayerModel()
                 {
@@ -27,8 +27,8 @@
                    FirstName = "Player",
                    LastName = "2",
                    Nickname = "Player2",
-                   Created = DateTime.UtcNow,
-                   Modified = DateTime.UtcNow,
+                   CreatedUTC = DateTime.UtcNow,
+                   ModifiedUTC = DateTime.UtcNow,
                    SelectedTeamId = 1
                 }, new PlayerModel()
                 {
@@ -36,8 +36,8 @@
                    FirstName = "Player",
                    LastName = "3",
                    Nickname = "Player3",
-                   Created = DateTime.UtcNow,
-                   Modified = DateTime.UtcNow,
+                   CreatedUTC = DateTime.UtcNow,
+                   ModifiedUTC = DateTime.UtcNow,
                     SelectedTeamId = 3
                 }
             };

@@ -5,7 +5,7 @@
     public abstract class EntityModel
     {
         public int Id { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public DateTime CreatedUTC { get; set; }
+        public DateTime ModifiedUTC { get; set; }
     }
 }

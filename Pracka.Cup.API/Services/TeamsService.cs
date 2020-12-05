@@ -31,7 +31,7 @@
             }
 
             var teamToCreate = _mapper.Map<CreateTeamDto, TeamModel>(createTeamDto);
-            teamToCreate.Created = teamToCreate.Modified = DateTime.UtcNow;
+            teamToCreate.CreatedUTC = teamToCreate.ModifiedUTC = DateTime.UtcNow;
 
             var createdTeam = await _context.Teams.AddAsync(teamToCreate);
             await _context.SaveChangesAsync();

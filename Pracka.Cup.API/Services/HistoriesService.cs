@@ -40,13 +40,13 @@
             var playerHomeTeam = await _context.Players
                 .FirstOrDefaultAsync((player) => player.Id == createHistoryDto.PlayerHomeTeamId);
 
-            if (null == createHistoryDto.GameDate)
+            if (null == createHistoryDto.GameDateUTC)
             {
-                createHistoryDto.GameDate = DateTime.UtcNow;
+                createHistoryDto.GameDateUTC = DateTime.UtcNow;
             }
 
             var historyToBeCreated = _mapper.Map<CreateHistoryDto, HistoryModel>(createHistoryDto);
-            historyToBeCreated.Created = historyToBeCreated.Modified = DateTime.UtcNow;
+            historyToBeCreated.CreatedUTC = historyToBeCreated.ModifiedUTC = DateTime.UtcNow;
 
             var createdHistory = await _context.Histories.AddAsync(historyToBeCreated);
             await _context.SaveChangesAsync();

@@ -12,6 +12,6 @@
         public int PlayerAwayTeamId { get; set; }
         public int GoalsAwayTeam { get; set; }
 
-        public DateTime? GameDate { get; set; }
+        public DateTime? GameDateUTC { get; set; }
     }
 }

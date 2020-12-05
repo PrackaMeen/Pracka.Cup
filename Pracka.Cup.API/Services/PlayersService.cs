@@ -33,7 +33,7 @@
             var selectedTeam = await _context.Teams.FirstAsync((team) => team.Id == createPlayerDto.SelectedTeamId);
 
             var playerToBeCreated = _mapper.Map<CreatePlayerDto, PlayerModel>(createPlayerDto);
-            playerToBeCreated.Created = playerToBeCreated.Modified = DateTime.UtcNow;
+            playerToBeCreated.CreatedUTC = playerToBeCreated.ModifiedUTC = DateTime.UtcNow;
 
             var createdPlayer = await _context.Players.AddAsync(playerToBeCreated);
             await _context.SaveChangesAsync();

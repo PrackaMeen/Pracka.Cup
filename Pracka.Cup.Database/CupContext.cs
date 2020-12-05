@@ -2,10 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Microsoft.EntityFrameworkCore.Metadata;
+    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
     using Pracka.Cup.Database.Data;
     using Pracka.Cup.Database.Models;
 
@@ -27,51 +30,130 @@
             }
         }
 
+        private ValueConverter<DateTime, DateTime> GetDateTimeConverter()
+        {
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+            return dateTimeConverter;
+        }
+        private ValueConverter<DateTime?, DateTime?> GetNullableDateTimeConverter()
+        {
+            var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+                v => v.HasValue ? v.Value.ToUniversalTime() : v,
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+            return nullableDateTimeConverter;
+        }
+        private void SetAllDateTimePropertiesAsUTC(IEnumerable<IMutableProperty> properties)
+        {
+            foreach (var property in properties)
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(GetDateTimeConverter());
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(GetNullableDateTimeConverter());
+                }
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //team
+            base.OnModelCreating(modelBuilder);
+
+            var dateTimeConverter = new DateTimeToBinaryConverter();
+            #region Team
             modelBuilder.Entity<TeamModel>()
                 .HasKey((team) => team.Id);
+            modelBuilder.Entity<TeamModel>()
+                .Property((team) => team.CreatedUTC)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValue(DateTime.UtcNow)
+                .HasConversion(dateTimeConverter);
 
-            //player
+            modelBuilder.Entity<TeamModel>()
+                .Property((team) => team.ModifiedUTC)
+                .HasDefaultValue(DateTime.UtcNow);
+            modelBuilder.Entity<TeamModel>()
+                .Property((team) => team.ModifiedUTC)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValue(DateTime.UtcNow)
+                .HasConversion(dateTimeConverter);
+            SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<TeamModel>().Metadata.GetProperties());
+            modelBuilder.Entity<TeamModel>().HasData(InitialTeams.Get());
+            #endregion Team
+
+            #region Player
             modelBuilder.Entity<PlayerModel>()
                .HasKey((player) => player.Id);
+            modelBuilder.Entity<PlayerModel>()
+               .Property((team) => team.CreatedUTC)
+               .ValueGeneratedOnAdd()
+               .HasDefaultValue(DateTime.UtcNow)
+               .HasConversion(dateTimeConverter);
+
+            modelBuilder.Entity<PlayerModel>()
+               .Property((team) => team.ModifiedUTC)
+               .ValueGeneratedOnAddOrUpdate()
+               .HasDefaultValue(DateTime.UtcNow)
+               .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<PlayerModel>()
                .HasOne((player) => player.SelectedTeam)
                .WithMany((team) => team.PastPlayers)
                .HasForeignKey((player) => player.SelectedTeamId);
-
-            //history
-            modelBuilder.Entity<HistoryModel>()
-                .HasKey((history) => history.Id);
-
-            modelBuilder.Entity<HistoryModel>()
-                .HasOne((history) => history.HomeTeam)
-                .WithMany((team) => team.HomeTeamHistories)
-                .HasForeignKey((history) => history.HomeTeamId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<HistoryModel>()
-                .HasOne((history) => history.AwayTeam)
-                .WithMany((team) => team.AwayTeamHistories)
-                .HasForeignKey((history) => history.AwayTeamId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<HistoryModel>()
-                .HasOne((history) => history.PlayerHomeTeam)
-                .WithMany((player) => player.HomeGameHistories)
-                .HasForeignKey((history) => history.PlayerHomeTeamId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<HistoryModel>()
-                .HasOne((history) => history.PlayerAwayTeam)
-                .WithMany((player) => player.AwayGameHistories)
-                .HasForeignKey((history) => history.PlayerAwayTeamId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<TeamModel>().HasData(InitialTeams.Get());
+            SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<PlayerModel>().Metadata.GetProperties());
             modelBuilder.Entity<PlayerModel>().HasData(InitialPlayers.Get());
+            #endregion Player
+
+            #region History
+            modelBuilder.Entity<HistoryModel>()
+               .HasKey((history) => history.Id);
+            modelBuilder.Entity<HistoryModel>()
+               .Property((team) => team.CreatedUTC)
+               .ValueGeneratedOnAdd()
+               .HasDefaultValue(DateTime.UtcNow)
+               .HasConversion(dateTimeConverter);
+
+            modelBuilder.Entity<HistoryModel>()
+               .Property((team) => team.ModifiedUTC)
+               .ValueGeneratedOnAddOrUpdate()
+               .HasDefaultValue(DateTime.UtcNow)
+               .HasConversion(dateTimeConverter);
+
+            modelBuilder.Entity<HistoryModel>()
+               .Property((team) => team.GameDateUTC)
+               .HasConversion(dateTimeConverter);
+
+            modelBuilder.Entity<HistoryModel>()
+               .HasOne((history) => history.HomeTeam)
+               .WithMany((team) => team.HomeTeamHistories)
+               .HasForeignKey((history) => history.HomeTeamId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<HistoryModel>()
+               .HasOne((history) => history.AwayTeam)
+               .WithMany((team) => team.AwayTeamHistories)
+               .HasForeignKey((history) => history.AwayTeamId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<HistoryModel>()
+               .HasOne((history) => history.PlayerHomeTeam)
+               .WithMany((player) => player.HomeGameHistories)
+               .HasForeignKey((history) => history.PlayerHomeTeamId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HistoryModel>()
+               .HasOne((history) => history.PlayerAwayTeam)
+               .WithMany((player) => player.AwayGameHistories)
+               .HasForeignKey((history) => history.PlayerAwayTeamId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<HistoryModel>().Metadata.GetProperties());
+            #endregion History
+
         }
     }
 
