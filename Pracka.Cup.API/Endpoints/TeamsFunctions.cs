@@ -12,10 +12,11 @@ namespace Pracka.Cup.API.Endpoints
     using System.Linq;
     using System.Text.RegularExpressions;
     using Pracka.Cup.API.Models;
-    using Pracka.Cup.Database.Models;
     using Microsoft.EntityFrameworkCore;
     using Pracka.Cup.API.Endpoints.Abstractions;
     using static Pracka.Cup.API.Endpoints.Constants.TeamsEndpoints;
+    using System.Collections;
+    using System.Collections.Generic;
 
     public partial class ApiFunctions : ITeamsEndpoints
     {
@@ -30,16 +31,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var allTeamDtos = await _teamsService.GetAllTeams();
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                result = allTeamDtos
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<IEnumerable<TeamDto>>(allTeamDtos, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(GetTeamById))]
@@ -54,17 +47,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var teamDto = await _teamsService.GetTeamBy(id);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    id = id,
-                    all = req.Query.ToList()
-                },
-                result = teamDto
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<TeamDto>(teamDto, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(CreateTeam))]
@@ -79,17 +63,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var newTeamDto = await _teamsService.CreateTeam(createTeamDto);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                data = createTeamDto,
-                result = newTeamDto
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<TeamDto, CreateTeamDto>(newTeamDto, req.Path, createTeamDto);
+            return new OkObjectResult(response);
         }
     }
 }

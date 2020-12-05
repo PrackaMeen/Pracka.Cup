@@ -4,6 +4,7 @@
 
     public class HistoryDto
     {
+        public int Id { get; set; }
         public TeamDto HomeTeam { get; set; }
         public PlayerDto PlayerHomeTeam { get; set; }
         public int GoalsHomeTeam { get; set; }

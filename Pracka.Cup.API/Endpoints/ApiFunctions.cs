@@ -43,5 +43,29 @@
             _playersService = new PlayersService(_context, _mapper);
             _teamsService = new TeamsService(_context, _mapper);
         }
+
+        public class ResponseModel<T> 
+            where T : class
+        {
+            public ResponseModel(T data, string requestPath = "")
+            {
+                this.Data = data;
+                this.RequestPath = requestPath;
+            }
+            public T Data { get; set; }
+            public string ETag { get; set; }
+            public string RequestPath { get; set; }
+        }
+        public class ResponseModel<T, R> : ResponseModel<T> 
+            where T : class 
+            where R : class
+        {
+            public ResponseModel(T data, string requestPath = "", R requestBody = null)
+                : base(data, requestPath)
+            {
+                this.RequestBody = requestBody;
+            }
+            public R RequestBody { get; set; }
+        }
     }
 }

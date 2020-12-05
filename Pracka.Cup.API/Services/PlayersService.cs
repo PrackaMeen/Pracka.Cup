@@ -25,7 +25,7 @@
 
         public async Task<PlayerDto> CreatePlayer(CreatePlayerDto createPlayerDto)
         {
-            if (false == isModelValid(createPlayerDto))
+            if (false == IsModelValid(createPlayerDto))
             {
                 throw new ArgumentException();
             }
@@ -36,6 +36,7 @@
             playerToBeCreated.Created = playerToBeCreated.Modified = DateTime.UtcNow;
 
             var createdPlayer = await _context.Players.AddAsync(playerToBeCreated);
+            await _context.SaveChangesAsync();
 
             var playerDto = _mapper.Map<PlayerModel, PlayerDto>(createdPlayer.Entity);
             return playerDto;
@@ -53,7 +54,7 @@
             return foundPlayersDtos;
         }
 
-        private bool isModelValid(CreatePlayerDto createPlayerDto)
+        private bool IsModelValid(CreatePlayerDto createPlayerDto)
         {
             return true;
         }

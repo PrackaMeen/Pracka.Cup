@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Pracka.Cup.API": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --cors *"
+    }
+  }
+}

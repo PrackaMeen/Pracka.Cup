@@ -12,10 +12,10 @@ namespace Pracka.Cup.API.Endpoints
     using System.Linq;
     using System.Text.RegularExpressions;
     using Pracka.Cup.API.Models;
-    using Pracka.Cup.Database.Models;
     using Microsoft.EntityFrameworkCore;
     using Pracka.Cup.API.Endpoints.Abstractions;
     using static Pracka.Cup.API.Endpoints.Constants.HistoriesEndpoints;
+    using System.Collections.Generic;
 
     public partial class ApiFunctions : IHistoriesEndpoints
     {
@@ -28,18 +28,10 @@ namespace Pracka.Cup.API.Endpoints
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
 
-            var historyDtos = await _historiesService.GetAllHistories();
+            var historyDtos = await _historiesService.GetAllHistoriesWithAll();
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                result = historyDtos
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<IEnumerable<HistoryDto>>(historyDtos, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(GetHistoryById))]
@@ -54,17 +46,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var historyDto = await _historiesService.GetHistoryBy(id);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    id = id,
-                    all = req.Query.ToList()
-                },
-                result = historyDto
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<HistoryDto>(historyDto, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(CreateHistory))]
@@ -79,17 +62,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var newHistoryDto = await _historiesService.CreateHistory(createHistoryDto);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                data = createHistoryDto,
-                result = newHistoryDto,
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<HistoryDto, CreateHistoryDto>(newHistoryDto, req.Path, createHistoryDto);
+            return new OkObjectResult(response);
         }
     }
 }

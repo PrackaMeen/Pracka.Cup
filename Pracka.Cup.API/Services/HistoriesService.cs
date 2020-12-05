@@ -25,7 +25,7 @@
 
         public async Task<HistoryDto> CreateHistory(CreateHistoryDto createHistoryDto)
         {
-            if (false == isModelValid(createHistoryDto))
+            if (false == IsModelValid(createHistoryDto))
             {
                 throw new ArgumentException();
             }
@@ -49,6 +49,7 @@
             historyToBeCreated.Created = historyToBeCreated.Modified = DateTime.UtcNow;
 
             var createdHistory = await _context.Histories.AddAsync(historyToBeCreated);
+            await _context.SaveChangesAsync();
 
             var historyDto = _mapper.Map<HistoryModel, HistoryDto>(createdHistory.Entity);
             historyDto.AwayTeam = _mapper.Map<TeamModel, TeamDto>(awayTeam);
@@ -64,14 +65,50 @@
             var foundHistoryDto = _mapper.Map<HistoryModel, HistoryDto>(foundHistory);
             return foundHistoryDto;
         }
-        public async Task<IEnumerable<HistoryDto>> GetAllHistories()
+        private async Task<IEnumerable<HistoryDto>> GetAllHistories(bool withTeamsDetail, bool withPlayersDetail)
         {
             var foundHistories = await _context.Histories.ToArrayAsync();
+            foreach (var foundHistory in foundHistories)
+            {
+                if (withTeamsDetail)
+                {
+                    foundHistory.AwayTeam = await _context.Teams
+                        .FirstOrDefaultAsync((team) => foundHistory.AwayTeamId == team.Id);
+                    foundHistory.HomeTeam = await _context.Teams
+                        .FirstOrDefaultAsync((team) => foundHistory.HomeTeamId == team.Id);
+                }
+                if (withPlayersDetail)
+                {
+                    foundHistory.PlayerAwayTeam = await _context.Players
+                        .FirstOrDefaultAsync((player) => foundHistory.PlayerAwayTeamId == player.Id);
+                    foundHistory.PlayerHomeTeam = await _context.Players
+                        .FirstOrDefaultAsync((player) => foundHistory.PlayerHomeTeamId == player.Id);
+                }
+            }
+
             var foundHistoriesDtos = _mapper.Map<HistoryModel[], HistoryDto[]>(foundHistories);
             return foundHistoriesDtos;
         }
+        public async Task<IEnumerable<HistoryDto>> GetAllHistories()
+        {
+            return await this.GetAllHistories(false, false);
+        }
 
-        private bool isModelValid(CreateHistoryDto createHistoryDto)
+        public async Task<IEnumerable<HistoryDto>> GetAllHistoriesWithTeams()
+        {
+            return await this.GetAllHistories(true, false);
+        }
+
+        public async Task<IEnumerable<HistoryDto>> GetAllHistoriesWithPlayers()
+        {
+            return await this.GetAllHistories(false, true);
+        }
+
+        public async Task<IEnumerable<HistoryDto>> GetAllHistoriesWithAll()
+        {
+            return await this.GetAllHistories(true, true);
+        }
+        private bool IsModelValid(CreateHistoryDto createHistoryDto)
         {
             return true;
         }

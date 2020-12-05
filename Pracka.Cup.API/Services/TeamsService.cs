@@ -25,7 +25,7 @@
 
         public async Task<TeamDto> CreateTeam(CreateTeamDto createTeamDto)
         {
-            if (false == isModelValid(createTeamDto))
+            if (false == IsModelValid(createTeamDto))
             {
                 throw new ArgumentException();
             }
@@ -34,6 +34,7 @@
             teamToCreate.Created = teamToCreate.Modified = DateTime.UtcNow;
 
             var createdTeam = await _context.Teams.AddAsync(teamToCreate);
+            await _context.SaveChangesAsync();
 
             var teamDto = _mapper.Map<TeamModel, TeamDto>(createdTeam.Entity);
             return teamDto;
@@ -51,7 +52,7 @@
             return foundTeamsDtos;
         }
 
-        private bool isModelValid(CreateTeamDto createTeamDto)
+        private bool IsModelValid(CreateTeamDto createTeamDto)
         {
             return true;
         }

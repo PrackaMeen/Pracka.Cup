@@ -16,6 +16,7 @@ namespace Pracka.Cup.API.Endpoints
     using Microsoft.EntityFrameworkCore;
     using Pracka.Cup.API.Endpoints.Abstractions;
     using static Pracka.Cup.API.Endpoints.Constants.PlayersEndpoints;
+    using System.Collections.Generic;
 
     public partial class ApiFunctions : IPlayersEndpoints
     {
@@ -30,16 +31,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var allPlayerDtos = await _playersService.GetAllPlayers();
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                result = allPlayerDtos
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<IEnumerable<PlayerDto>>(allPlayerDtos, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(GetPlayerById))]
@@ -54,17 +47,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var playerDto = await _playersService.GetPlayerBy(id);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    id = id,
-                    all = req.Query.ToList()
-                },
-                result = playerDto
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<PlayerDto>(playerDto, req.Path);
+            return new OkObjectResult(response);
         }
 
         [FunctionName(nameof(CreatePlayer))]
@@ -79,17 +63,8 @@ namespace Pracka.Cup.API.Endpoints
 
             var newPlayerDto = await _playersService.CreatePlayer(createPlayerDto);
 
-            var responseObj = new
-            {
-                arguments = new
-                {
-                    all = req.Query.ToList()
-                },
-                data = createPlayerDto,
-                result = newPlayerDto,
-            };
-
-            return new OkObjectResult(responseObj);
+            var response = new ResponseModel<PlayerDto, CreatePlayerDto>(newPlayerDto, req.Path, createPlayerDto);
+            return new OkObjectResult(response);
         }
     }
 }

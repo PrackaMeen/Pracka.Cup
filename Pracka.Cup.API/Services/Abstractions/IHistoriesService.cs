@@ -8,6 +8,9 @@
     {
         Task<HistoryDto> CreateHistory(CreateHistoryDto createHistoryDto);
         Task<IEnumerable<HistoryDto>> GetAllHistories();
+        Task<IEnumerable<HistoryDto>> GetAllHistoriesWithTeams();
+        Task<IEnumerable<HistoryDto>> GetAllHistoriesWithPlayers();
+        Task<IEnumerable<HistoryDto>> GetAllHistoriesWithAll();
         Task<HistoryDto> GetHistoryBy(int id);
     }
 }
