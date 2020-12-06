@@ -16,38 +16,65 @@ namespace Pracka.Cup.API.Endpoints
     using Pracka.Cup.API.Endpoints.Abstractions;
     using static Pracka.Cup.API.Endpoints.Constants.HistoriesEndpoints;
     using System.Collections.Generic;
+    using Pracka.Cup.API.Services.Abstractions;
+    using Pracka.Cup.API.Services;
+    using System.Linq.Expressions;
+    using System.Web.Http;
+    using Microsoft.Extensions.Configuration;
 
-    public partial class ApiFunctions : IHistoriesEndpoints
+    public class HistoriesFunctions : ApiFunctions, IHistoriesEndpoints
     {
+        private readonly IHistoriesService _historiesService;
         readonly Regex regexHistoryId = new Regex("histories/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        public HistoriesFunctions(IConfiguration configuration) : base(configuration)
+        {
+            _historiesService = new HistoriesService(base._context, base._mapper);
+        }
 
         [FunctionName(nameof(GetAllHistories))]
         public async Task<IActionResult> GetAllHistories(
-           [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = HISTORIES)] HttpRequest req,
            ILogger log)
         {
-            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetAllHistories)}.");
 
-            var historyDtos = await _historiesService.GetAllHistoriesWithAll();
+                var historyDtos = await _historiesService.GetAllHistoriesWithAll();
 
-            var response = new ResponseModel<IEnumerable<HistoryDto>>(historyDtos, req.Path);
-            return new OkObjectResult(response);
+                var response = new ResponseModel<IEnumerable<HistoryDto>>(historyDtos, req.Path);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
         }
 
         [FunctionName(nameof(GetHistoryById))]
         public async Task<IActionResult> GetHistoryById(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetHistoryById)}.");
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetHistoryById)}.");
 
-            string path = req.Path.Value;
-            int id = GetIdFromPathPart(regexHistoryId, path, HISTORIES);
+                string path = req.Path.Value;
+                int id = GetIdFromPathPart(regexHistoryId, path, HISTORIES);
 
-            var historyDto = await _historiesService.GetHistoryBy(id);
+                var historyDto = await _historiesService.GetHistoryBy(id);
 
-            var response = new ResponseModel<HistoryDto>(historyDto, req.Path);
-            return new OkObjectResult(response);
+                var response = new ResponseModel<HistoryDto>(historyDto, req.Path);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
         }
 
         [FunctionName(nameof(CreateHistory))]
@@ -56,14 +83,21 @@ namespace Pracka.Cup.API.Endpoints
             ILogger log)
         {
             log.LogInformation($"C# HTTP trigger function processed a request {nameof(CreateHistory)}.");
+            try
+            {
+                string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+                var createHistoryDto = JsonConvert.DeserializeObject<CreateHistoryDto>(requestBodyJson);
 
-            string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
-            var createHistoryDto = JsonConvert.DeserializeObject<CreateHistoryDto>(requestBodyJson);
+                var newHistoryDto = await _historiesService.CreateHistory(createHistoryDto);
 
-            var newHistoryDto = await _historiesService.CreateHistory(createHistoryDto);
-
-            var response = new ResponseModel<HistoryDto, CreateHistoryDto>(newHistoryDto, req.Path, createHistoryDto);
-            return new OkObjectResult(response);
+                var response = new ResponseModel<HistoryDto, CreateHistoryDto>(newHistoryDto, req.Path, createHistoryDto);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
         }
     }
 }

@@ -8,6 +8,7 @@
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.EntityFrameworkCore.Metadata;
     using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+    using Microsoft.Extensions.Configuration;
     using Pracka.Cup.Database.Data;
     using Pracka.Cup.Database.Models;
 
@@ -25,7 +26,8 @@
         {
             if (!options.IsConfigured)
             {
-                options.UseSqlServer("Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
+                var connectionString = Environment.GetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING");
+                options.UseSqlServer(connectionString);
             }
         }
 
@@ -160,10 +162,18 @@
 
     public class CupContextFactory : IDesignTimeDbContextFactory<CupContext>
     {
+        private readonly IConfiguration _configuration;
+        public CupContextFactory(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         public CupContext CreateDbContext(string[] args)
         {
+            var connectionString = _configuration?.GetConnectionString("PRACKA_CUP_CONNECTION_STRING")
+                ?? Environment.GetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING");
+            
             var optionsBuilder = new DbContextOptionsBuilder<CupContext>();
-            optionsBuilder.UseSqlServer("Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
+            optionsBuilder.UseSqlServer(connectionString);
 
             return new CupContext(optionsBuilder.Options);
         }

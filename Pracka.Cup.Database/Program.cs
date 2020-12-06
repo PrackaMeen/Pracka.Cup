@@ -7,7 +7,7 @@ namespace Pracka.Cup.Database
     {
         static void Main(string[] args)
         {
-            using (var context = new CupContextFactory().CreateDbContext(null))
+            using (var context = new CupContextFactory(null).CreateDbContext(args))
             {
                 context.Database.MigrateAsync();
             }
