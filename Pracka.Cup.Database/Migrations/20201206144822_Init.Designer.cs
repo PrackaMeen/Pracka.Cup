@@ -10,8 +10,8 @@ using Pracka.Cup.Database;
 namespace Pracka.Cup.Database.Migrations
 {
     [DbContext(typeof(CupContext))]
-    [Migration("20201129194214_Move FK from Teams to Players")]
-    partial class MoveFKfromTeamstoPlayers
+    [Migration("20201206144822_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,11 +31,16 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<int>("AwayTeamId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
+
+                    b.Property<DateTime>("GameDateUTC")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("GameDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("GameType")
+                        .HasColumnType("int");
 
                     b.Property<int>("GoalsAwayTeam")
                         .HasColumnType("int");
@@ -46,8 +51,10 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<int>("HomeTeamId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("ModifiedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<int>("PlayerAwayTeamId")
                         .HasColumnType("int");
@@ -81,8 +88,10 @@ namespace Pracka.Cup.Database.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("CreatedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
@@ -90,8 +99,10 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("ModifiedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Nickname")
                         .HasColumnType("nvarchar(max)");
@@ -104,6 +115,38 @@ namespace Pracka.Cup.Database.Migrations
                     b.HasIndex("SelectedTeamId");
 
                     b.ToTable("Players");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2164),
+                            FirstName = "Player",
+                            LastName = "1",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2169),
+                            Nickname = "Player1",
+                            SelectedTeamId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2520),
+                            FirstName = "Player",
+                            LastName = "2",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2522),
+                            Nickname = "Player2",
+                            SelectedTeamId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2530),
+                            FirstName = "Player",
+                            LastName = "3",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2530),
+                            Nickname = "Player3",
+                            SelectedTeamId = 3
+                        });
                 });
 
             modelBuilder.Entity("Pracka.Cup.Database.Models.TeamModel", b =>
@@ -113,14 +156,18 @@ namespace Pracka.Cup.Database.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("CreatedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Icon")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("ModifiedUTC")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -128,6 +175,32 @@ namespace Pracka.Cup.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Teams");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 953, DateTimeKind.Utc).AddTicks(3833),
+                            Icon = "BOSTON_BRUINS",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(732),
+                            Name = "Boston"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1884),
+                            Icon = "BUFFALO_SABRES",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1903),
+                            Name = "Buffalo"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1920),
+                            Icon = "PHILADELPHIA_FLYERS",
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1922),
+                            Name = "Philadelpia"
+                        });
                 });
 
             modelBuilder.Entity("Pracka.Cup.Database.Models.HistoryModel", b =>

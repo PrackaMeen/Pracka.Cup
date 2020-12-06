@@ -26,9 +26,9 @@
 
         public async Task<HistoryDto> CreateHistory(CreateHistoryDto createHistoryDto)
         {
-            if (false == IsModelValid(createHistoryDto))
+            if (false == IsModelValid(createHistoryDto, out string issues))
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"History model is not valid. Issues: {issues}");
             }
 
             var awayTeam = await _context.Teams
@@ -47,7 +47,6 @@
             }
 
             var historyToBeCreated = _mapper.ToHistoryModel(createHistoryDto);
-            historyToBeCreated.CreatedUTC = historyToBeCreated.ModifiedUTC = DateTime.UtcNow;
 
             var createdHistory = await _context.Histories.AddAsync(historyToBeCreated);
             await _context.SaveChangesAsync();
@@ -109,8 +108,9 @@
         {
             return await this.GetAllHistories(true, true);
         }
-        private bool IsModelValid(CreateHistoryDto createHistoryDto)
+        private bool IsModelValid(CreateHistoryDto createHistoryDto, out string issues)
         {
+            issues = "";
             return true;
         }
     }

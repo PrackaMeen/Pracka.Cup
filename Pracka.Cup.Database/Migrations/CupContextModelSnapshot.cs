@@ -32,7 +32,7 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<DateTime>("CreatedUTC")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(5768));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<DateTime>("GameDateUTC")
                         .HasColumnType("datetime2");
@@ -50,9 +50,9 @@ namespace Pracka.Cup.Database.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ModifiedUTC")
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(6124));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<int>("PlayerAwayTeamId")
                         .HasColumnType("int");
@@ -89,7 +89,7 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<DateTime>("CreatedUTC")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 796, DateTimeKind.Utc).AddTicks(4789));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
@@ -98,9 +98,9 @@ namespace Pracka.Cup.Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedUTC")
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 796, DateTimeKind.Utc).AddTicks(5091));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Nickname")
                         .HasColumnType("nvarchar(max)");
@@ -118,30 +118,30 @@ namespace Pracka.Cup.Database.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3328),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2164),
                             FirstName = "Player",
                             LastName = "1",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3332),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2169),
                             Nickname = "Player1",
                             SelectedTeamId = 2
                         },
                         new
                         {
                             Id = 2,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3675),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2520),
                             FirstName = "Player",
                             LastName = "2",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3677),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2522),
                             Nickname = "Player2",
                             SelectedTeamId = 1
                         },
                         new
                         {
                             Id = 3,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3684),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2530),
                             FirstName = "Player",
                             LastName = "3",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 799, DateTimeKind.Utc).AddTicks(3684),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 959, DateTimeKind.Utc).AddTicks(2530),
                             Nickname = "Player3",
                             SelectedTeamId = 3
                         });
@@ -157,15 +157,15 @@ namespace Pracka.Cup.Database.Migrations
                     b.Property<DateTime>("CreatedUTC")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 787, DateTimeKind.Utc).AddTicks(7922));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Icon")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedUTC")
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 12, 5, 22, 16, 22, 791, DateTimeKind.Utc).AddTicks(8859));
+                        .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -178,25 +178,25 @@ namespace Pracka.Cup.Database.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 793, DateTimeKind.Utc).AddTicks(6888),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 953, DateTimeKind.Utc).AddTicks(3833),
                             Icon = "BOSTON_BRUINS",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 795, DateTimeKind.Utc).AddTicks(3588),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(732),
                             Name = "Boston"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 795, DateTimeKind.Utc).AddTicks(4682),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1884),
                             Icon = "BUFFALO_SABRES",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 795, DateTimeKind.Utc).AddTicks(4700),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1903),
                             Name = "Buffalo"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 795, DateTimeKind.Utc).AddTicks(4717),
+                            CreatedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1920),
                             Icon = "PHILADELPHIA_FLYERS",
-                            ModifiedUTC = new DateTime(2020, 12, 5, 22, 16, 22, 795, DateTimeKind.Utc).AddTicks(4719),
+                            ModifiedUTC = new DateTime(2020, 12, 6, 14, 48, 21, 955, DateTimeKind.Utc).AddTicks(1922),
                             Name = "Philadelpia"
                         });
                 });

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.EntityFrameworkCore.Metadata;
@@ -67,20 +66,19 @@
             #region Team
             modelBuilder.Entity<TeamModel>()
                 .HasKey((team) => team.Id);
+
             modelBuilder.Entity<TeamModel>()
                 .Property((team) => team.CreatedUTC)
                 .ValueGeneratedOnAdd()
-                .HasDefaultValue(DateTime.UtcNow)
+                .HasDefaultValueSql("getutcdate()")
                 .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<TeamModel>()
                 .Property((team) => team.ModifiedUTC)
-                .HasDefaultValue(DateTime.UtcNow);
-            modelBuilder.Entity<TeamModel>()
-                .Property((team) => team.ModifiedUTC)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValue(DateTime.UtcNow)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("getutcdate()")
                 .HasConversion(dateTimeConverter);
+
             SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<TeamModel>().Metadata.GetProperties());
             modelBuilder.Entity<TeamModel>().HasData(InitialTeams.Get());
             #endregion Team
@@ -88,22 +86,24 @@
             #region Player
             modelBuilder.Entity<PlayerModel>()
                .HasKey((player) => player.Id);
+
             modelBuilder.Entity<PlayerModel>()
-               .Property((team) => team.CreatedUTC)
+               .Property((player) => player.CreatedUTC)
+               .HasDefaultValueSql("getutcdate()")
                .ValueGeneratedOnAdd()
-               .HasDefaultValue(DateTime.UtcNow)
                .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<PlayerModel>()
-               .Property((team) => team.ModifiedUTC)
-               .ValueGeneratedOnAddOrUpdate()
-               .HasDefaultValue(DateTime.UtcNow)
+               .Property((player) => player.ModifiedUTC)
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("getutcdate()")
                .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<PlayerModel>()
                .HasOne((player) => player.SelectedTeam)
                .WithMany((team) => team.PastPlayers)
                .HasForeignKey((player) => player.SelectedTeamId);
+
             SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<PlayerModel>().Metadata.GetProperties());
             modelBuilder.Entity<PlayerModel>().HasData(InitialPlayers.Get());
             #endregion Player
@@ -111,21 +111,23 @@
             #region History
             modelBuilder.Entity<HistoryModel>()
                .HasKey((history) => history.Id);
+
             modelBuilder.Entity<HistoryModel>()
-               .Property((team) => team.CreatedUTC)
+               .Property((history) => history.CreatedUTC)
                .ValueGeneratedOnAdd()
-               .HasDefaultValue(DateTime.UtcNow)
+               .HasDefaultValueSql("getutcdate()")
                .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<HistoryModel>()
-               .Property((team) => team.ModifiedUTC)
-               .ValueGeneratedOnAddOrUpdate()
-               .HasDefaultValue(DateTime.UtcNow)
+               .Property((history) => history.ModifiedUTC)
+               .ValueGeneratedOnAdd()
+               .HasDefaultValueSql("getutcdate()")
                .HasConversion(dateTimeConverter);
 
             modelBuilder.Entity<HistoryModel>()
-               .Property((team) => team.GameDateUTC)
-               .HasConversion(dateTimeConverter);
+               .Property((history) => history.GameDateUTC)
+               .HasConversion(dateTimeConverter)
+               .IsRequired();
 
             modelBuilder.Entity<HistoryModel>()
                .HasOne((history) => history.HomeTeam)
@@ -153,7 +155,6 @@
 
             SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<HistoryModel>().Metadata.GetProperties());
             #endregion History
-
         }
     }
 

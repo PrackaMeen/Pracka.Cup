@@ -66,5 +66,22 @@ namespace Pracka.Cup.API.Endpoints
             var response = new ResponseModel<PlayerDto, CreatePlayerDto>(newPlayerDto, req.Path, createPlayerDto);
             return new OkObjectResult(response);
         }
+        [FunctionName(nameof(UpdatePlayer))]
+        public async Task<IActionResult> UpdatePlayer(
+           [HttpTrigger(AuthorizationLevel.Function, "put", Route = UPDATE_PLAYER_WITH_ID)] HttpRequest req,
+           ILogger log)
+        {
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(UpdatePlayer)}.");
+
+            string path = req.Path.Value;
+            int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
+            string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+            var updatePlayerDto = JsonConvert.DeserializeObject<UpdatePlayerDto>(requestBodyJson);
+
+            var newPlayerDto = await _playersService.UpdatePlayer(id, updatePlayerDto);
+
+            var response = new ResponseModel<PlayerDto, UpdatePlayerDto>(newPlayerDto, req.Path, updatePlayerDto);
+            return new OkObjectResult(response);
+        }
     }
 }
