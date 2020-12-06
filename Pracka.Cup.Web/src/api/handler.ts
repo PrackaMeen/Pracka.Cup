@@ -7,7 +7,7 @@ interface httpHandlerArgs<T> {
 export default function httpHandler<T>(args: httpHandlerArgs<T>) {
     var basePath = 'localhost' === window.location.hostname 
     ? 'http://localhost:7071'
-    : 'https://pracka-cup.azurewebsites.net'
+    :  ''
 
     return fetch(basePath + args.relativeUrl, {
         body: JSON.stringify(args.body),
