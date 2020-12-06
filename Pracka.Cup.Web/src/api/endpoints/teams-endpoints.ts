@@ -5,7 +5,7 @@ import { ResponseModel } from '../response-model'
 export async function getAllTeams(): Promise<TeamDto[]> {
     try {
         var result = await getHttpHandler({
-            relativeUrl: 'http://localhost:7071/api/teams'
+            relativeUrl: '/api/teams'
         })
 
         var response: ResponseModel<TeamDto[], null> = await result.json()

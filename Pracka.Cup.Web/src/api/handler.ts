@@ -5,7 +5,11 @@ interface httpHandlerArgs<T> {
 }
 
 export default function httpHandler<T>(args: httpHandlerArgs<T>) {
-    return fetch(args.relativeUrl, {
+    var basePath = 'localhost' === window.location.hostname 
+    ? 'http://localhost:7071'
+    : ''
+    
+    return fetch(basePath + args.relativeUrl, {
         body: JSON.stringify(args.body),
         method: args.type
     })

@@ -6,7 +6,7 @@ import { ResponseModel } from '../response-model'
 export async function getAllHistories(): Promise<HistoryDto[]> {
     try {
         var result = await getHttpHandler({
-            relativeUrl: 'http://localhost:7071/api/histories'
+            relativeUrl: '/api/histories'
         })
 
         var response: ResponseModel<HistoryDto[], null> = await result.json()
@@ -26,7 +26,7 @@ export async function getAllHistories(): Promise<HistoryDto[]> {
 export async function createHistory(createHistory: CreateHistoryDto): Promise<HistoryDto | undefined> {
     try {
         var result = await postHttpHandler({
-            relativeUrl: 'http://localhost:7071/api/histories/create',
+            relativeUrl: '/api/histories/create',
             data: createHistory
         })
 
