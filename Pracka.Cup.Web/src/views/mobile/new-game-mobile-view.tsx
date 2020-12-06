@@ -64,12 +64,14 @@ const WinButton = (props: {
     emblemType?: PossibleEmblems,
     classes: Partial<Record<WinButtonClasses, string>>
     onClick: () => void
+    disabled: boolean
 }) => {
     const {
         label,
         emblemType,
         classes,
-        onClick: handleClick
+        onClick: handleClick,
+        disabled
     } = props
 
     return (
@@ -84,6 +86,7 @@ const WinButton = (props: {
                 className: classes?.buttonEmblem
             })}
             onClick={handleClick}
+            disabled={disabled}
         >
             <span style={{ width: '80%' }}>{label}</span>
         </Button>
@@ -129,6 +132,7 @@ const EmblemCarousel = (props: {
 }
 
 const initialState = {
+    isLoading: false,
     leftScoreValue: 0,
     leftEmblem: 'BUFFALO_SABRES' as PossibleEmblems,
     leftEmblemIndex: 0,
@@ -136,6 +140,21 @@ const initialState = {
     rightEmblem: 'BOSTON_BRUINS' as PossibleEmblems,
     rightEmblemIndex: 0,
     allEmblems: ['BUFFALO_SABRES', 'BOSTON_BRUINS', 'PHILADELPHIA_FLYERS'] as PossibleEmblems[]
+}
+
+function isNegative(value: number) {
+    return 0 > value
+}
+function isInputInvalid(value: number) {
+    return true === isNegative(value)
+}
+function isClassicButtonValidation(leftValue: number, rightValue: number) {
+    return isNegative(leftValue) || isNegative(rightValue)
+        || leftValue === rightValue
+}
+function isNonClassicButtonValidation(leftValue: number, rightValue: number) {
+    return isClassicButtonValidation(leftValue, rightValue)
+        || 1 !== Math.abs(leftValue - rightValue)
 }
 
 export default function NewGameMobileView(props: NewGameViewProps) {
@@ -237,8 +256,14 @@ export default function NewGameMobileView(props: NewGameViewProps) {
     }, [state.rightEmblem])
 
     function handleWinButtonClick(gameType: GameType) {
-        return function () {
-            historiesService.saveGameHistory({
+        async function saveGame() {
+            setState((oldState) => {
+                return {
+                    ...oldState,
+                    isLoading: true
+                }
+            })
+            const newHistory = await historiesService.saveGameHistory({
                 gameDateUTC: new Date(),
                 awayTeamId: 1,
                 playerAwayTeamId: 1,
@@ -248,7 +273,16 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                 goalsHomeTeam: state.leftScoreValue,
                 gameType,
             })
+
+            newHistory && setState((oldState) => {
+                return {
+                    ...oldState,
+                    isLoading: false
+                }
+            })
         }
+
+        return saveGame
     }
 
     return (
@@ -270,13 +304,18 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                 </div>
                 <div className={classes.versusRow} >
                     <TextField
+                        required={true}
+                        error={isInputInvalid(state.leftScoreValue)}
+                        type={'number'}
+                        label={'Home'}
                         className={classes.rowLeft}
                         inputProps={{
                             className: clsx(classes.scoreInput, classes.textAlignRight)
                         }}
-                        required={true}
-                        type={'number'}
-                        label={'Home'}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        placeholder={'0'}
                         size='medium'
                         onChange={(event) => {
                             const value = Number(event.target.value)
@@ -293,12 +332,17 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     </div>
                     <TextField
                         required={true}
+                        error={isInputInvalid(state.rightScoreValue)}
                         type={'number'}
                         label={'Away'}
                         className={classes.rowRight}
                         inputProps={{
                             className: clsx(classes.scoreInput, classes.textAlignLeft)
                         }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        placeholder={'0'}
                         onChange={(event) => {
                             const value = Number(event.target.value)
                             setState((oldState) => {
@@ -319,6 +363,10 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         label={'Vyhra'}
                         emblemType={winnerEmblem}
                         onClick={handleWinButtonClick(GameType.CLASSIC)}
+                        disabled={isClassicButtonValidation(
+                            state.leftScoreValue,
+                            state.rightScoreValue
+                        )}
                     />
                     <WinButton
                         classes={{
@@ -328,6 +376,10 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         label={'Po predlzeni'}
                         emblemType={winnerEmblem}
                         onClick={handleWinButtonClick(GameType.OVERTIME)}
+                        disabled={isNonClassicButtonValidation(
+                            state.leftScoreValue,
+                            state.rightScoreValue
+                        )}
                     />
                     <WinButton
                         classes={{
@@ -337,6 +389,10 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         label={'Po najazdoch'}
                         emblemType={winnerEmblem}
                         onClick={handleWinButtonClick(GameType.SHOOTOUT)}
+                        disabled={isNonClassicButtonValidation(
+                            state.leftScoreValue,
+                            state.rightScoreValue
+                        )}
                     />
                 </Box>
             </div>
