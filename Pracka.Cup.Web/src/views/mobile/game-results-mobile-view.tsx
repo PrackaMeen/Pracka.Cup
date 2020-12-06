@@ -1,6 +1,5 @@
 import React from "react"
 import { GameResultsViewProps } from "../types"
-import prackaCupEndGame from "../svg/pracka-cup-end-game.svg"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
 import { makeStyles } from "@material-ui/core"
 import clsx from "clsx"
@@ -95,12 +94,6 @@ export default function GameResultsMobileView(props: GameResultsViewProps) {
 
                 </div>
             </div>
-        </MobileSiteMenu>
-    )
-
-    return (
-        <MobileSiteMenu>
-            <img src={prackaCupEndGame} alt="logo" />
         </MobileSiteMenu>
     )
 }

@@ -8,7 +8,9 @@ type SvgContainerProps = {
 }
 
 export default function SvgContainer(props: SvgContainerProps) {
+    const alt = props.alt ?? ''
+
     return (
-        <img {...props} />
+        <img {...props} alt={alt} />
     )
 }

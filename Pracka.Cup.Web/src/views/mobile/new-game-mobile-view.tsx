@@ -212,7 +212,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                 }}
             />
         )
-    }, [state.leftEmblem])
+    }, [state.leftEmblem, classes.rowEmblem, classes.rowLeft])
     const rightEmblem = React.useMemo(() => {
         console.log('Rerender')
         return (
@@ -253,7 +253,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                 }}
             />
         )
-    }, [state.rightEmblem])
+    }, [state.rightEmblem, classes.rowEmblem, classes.rowRight])
 
     function handleWinButtonClick(gameType: GameType) {
         async function saveGame() {
