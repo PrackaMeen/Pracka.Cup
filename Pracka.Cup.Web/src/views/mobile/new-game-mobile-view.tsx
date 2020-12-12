@@ -2,10 +2,11 @@ import React from "react"
 import clsx from 'clsx'
 import ScoreInput from '../../components/inputs/score-input'
 import { NewGameViewProps } from "../types"
-import { Box, Button, makeStyles } from "@material-ui/core"
+import { Box, makeStyles } from "@material-ui/core"
 import { getEmblemByType } from "../../components/emblems/helpers"
 import { PossibleEmblems } from "../../components/emblems/types"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
+import WinButton from "../../components/buttons/win-button"
 import { GameType } from '../../api/models/game-type-enum'
 import * as historiesService from "../../services/histories-service"
 import { useHistory } from "react-router-dom"
@@ -46,10 +47,6 @@ const useStyles = makeStyles((theme) => ({
     buttonLabel: {
         fontSize: '1.5em'
     },
-    scoreInput: {
-        fontSize: '4em',
-        width: '2em',
-    },
     textAlignLeft: {
         textAlign: 'left'
     },
@@ -60,41 +57,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '2em'
     }
 }));
-
-type WinButtonClasses = 'buttonEmblem' | 'buttonLabel'
-const WinButton = (props: {
-    label: string,
-    emblemType?: PossibleEmblems,
-    classes: Partial<Record<WinButtonClasses, string>>
-    onClick: () => void
-    disabled: boolean
-}) => {
-    const {
-        label,
-        emblemType,
-        classes,
-        onClick: handleClick,
-        disabled
-    } = props
-
-    return (
-        <Button
-            classes={{
-                label: classes?.buttonLabel
-            }}
-            startIcon={emblemType && getEmblemByType(emblemType)({
-                className: classes?.buttonEmblem
-            })}
-            endIcon={emblemType && getEmblemByType(emblemType)({
-                className: classes?.buttonEmblem
-            })}
-            onClick={handleClick}
-            disabled={disabled}
-        >
-            <span style={{ width: '80%' }}>{label}</span>
-        </Button>
-    )
-}
 
 type EmblemCarouselClasses = 'emblem'
 const EmblemCarousel = (props: {
@@ -153,10 +115,29 @@ function isClassicButtonValidation(leftValue: number, rightValue: number) {
         || leftValue === rightValue
 }
 function isNonClassicButtonValidation(leftValue: number, rightValue: number) {
-    console.log(1 !== Math.abs(rightValue - leftValue))
-    console.log(Math.abs(rightValue - leftValue))
     return isClassicButtonValidation(leftValue, rightValue)
         || 1 !== Math.abs(rightValue - leftValue)
+}
+
+function getWinnerEmblem(state: typeof initialState) {
+    const winnerEmblem: PossibleEmblems | undefined
+        = state.leftScoreValue > state.rightScoreValue
+            ? state.leftEmblem
+            : state.leftScoreValue < state.rightScoreValue
+                ? state.rightEmblem
+                : undefined
+
+    return winnerEmblem
+}
+function getHomeEmblem(state: typeof initialState) {
+    const homeEmblem: PossibleEmblems = state.leftEmblem
+
+    return homeEmblem
+}
+function getAwayEmblem(state: typeof initialState) {
+    const awayEmblem: PossibleEmblems = state.rightEmblem
+
+    return awayEmblem
 }
 
 export default function NewGameMobileView(props: NewGameViewProps) {
@@ -164,13 +145,6 @@ export default function NewGameMobileView(props: NewGameViewProps) {
     const routerHistory = useHistory()
 
     const [state, setState] = React.useState({ ...initialState })
-
-    const winnerEmblem: PossibleEmblems | undefined
-        = state.leftScoreValue > state.rightScoreValue
-            ? state.leftEmblem
-            : state.leftScoreValue < state.rightScoreValue
-                ? state.rightEmblem
-                : undefined
 
     React.useEffect(() => {
         console.log(state)
@@ -180,7 +154,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
         console.log('Rerender')
         return (
             <EmblemCarousel
-                emblemType={state.leftEmblem}
+                emblemType={getHomeEmblem(state)}
                 onClick={() => {
                     console.log('Left emblem clicked')
                     setState((oldState) => {
@@ -221,7 +195,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
         console.log('Rerender')
         return (
             <EmblemCarousel
-                emblemType={state.rightEmblem}
+                emblemType={getAwayEmblem(state)}
                 onClick={() => {
                     console.log('Right emblem clicked')
                     setState((oldState) => {
@@ -302,6 +276,22 @@ export default function NewGameMobileView(props: NewGameViewProps) {
 
         return saveGame
     }
+    function handleHomeScoreChange(newHomeScore: number) {
+        setState((oldState) => {
+            return {
+                ...oldState,
+                leftScoreValue: newHomeScore
+            }
+        })
+    }
+    function handleAwayScoreChange(newAwayScore: number) {
+        setState((oldState) => {
+            return {
+                ...oldState,
+                rightScoreValue: newAwayScore
+            }
+        })
+    }
 
     return (
         <MobileSiteMenu>
@@ -327,14 +317,7 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                             rowSide: classes.rowLeft,
                             inputAlign: classes.textAlignRight
                         }}
-                        onScoreChange={(newHomeScore) => {
-                            setState((oldState) => {
-                                return {
-                                    ...oldState,
-                                    leftScoreValue: newHomeScore
-                                }
-                            })
-                        }}
+                        onScoreChange={handleHomeScoreChange}
                         scoreValue={state.leftScoreValue}
                     />
                     <div className={classes.rowCenter}>
@@ -346,25 +329,15 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                             rowSide: classes.rowRight,
                             inputAlign: classes.textAlignLeft
                         }}
-                        onScoreChange={(newAwayScore) => {
-                            setState((oldState) => {
-                                return {
-                                    ...oldState,
-                                    rightScoreValue: newAwayScore
-                                }
-                            })
-                        }}
+                        onScoreChange={handleAwayScoreChange}
                         scoreValue={state.rightScoreValue}
                     />
                 </div>
                 <Box style={{ display: 'grid' }}>
                     <WinButton
-                        classes={{
-                            buttonEmblem: classes.buttonEmblem,
-                            buttonLabel: classes.buttonLabel
-                        }}
                         label={'Vyhra'}
-                        emblemType={winnerEmblem}
+                        classes={classes}
+                        emblemType={getWinnerEmblem(state)}
                         onClick={handleWinButtonClick(GameType.CLASSIC)}
                         disabled={isClassicButtonValidation(
                             state.leftScoreValue,
@@ -372,12 +345,9 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         )}
                     />
                     <WinButton
-                        classes={{
-                            buttonEmblem: classes.buttonEmblem,
-                            buttonLabel: classes.buttonLabel
-                        }}
                         label={'Po predlzeni'}
-                        emblemType={winnerEmblem}
+                        classes={classes}
+                        emblemType={getWinnerEmblem(state)}
                         onClick={handleWinButtonClick(GameType.OVERTIME)}
                         disabled={isNonClassicButtonValidation(
                             state.leftScoreValue,
@@ -385,12 +355,9 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                         )}
                     />
                     <WinButton
-                        classes={{
-                            buttonEmblem: classes.buttonEmblem,
-                            buttonLabel: classes.buttonLabel
-                        }}
                         label={'Po najazdoch'}
-                        emblemType={winnerEmblem}
+                        classes={classes}
+                        emblemType={getWinnerEmblem(state)}
                         onClick={handleWinButtonClick(GameType.SHOOTOUT)}
                         disabled={isNonClassicButtonValidation(
                             state.leftScoreValue,
