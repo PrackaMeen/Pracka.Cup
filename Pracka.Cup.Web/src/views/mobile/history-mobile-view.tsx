@@ -3,7 +3,6 @@ import { HistoryViewProps } from "../types"
 import { getEmblemByType } from "../../components/emblems/helpers"
 import { PossibleEmblems } from "../../components/emblems/types"
 import { HistoryViewModelRowType, HistoryViewModelType } from "../../models"
-//import { dummyHistoryViewModel } from "../../models/mocks/dummyHistoryViewModel"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
 import * as historiesService from '../../services/histories-service'
 

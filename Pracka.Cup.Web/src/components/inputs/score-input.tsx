@@ -17,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-
 type ScoreInputClasses = 'rowSide' | 'inputAlign'
 export default function ScoreInput(props: {
     label: string
