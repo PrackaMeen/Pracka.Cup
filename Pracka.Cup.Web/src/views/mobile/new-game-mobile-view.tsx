@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import ScoreInput from '../../components/inputs/score-input'
 import { NewGameViewProps } from "../types"
 import { Box, makeStyles } from "@material-ui/core"
-import { getEmblemByType } from "../../components/emblems/helpers"
+import EmblemInput from "../../components/inputs/emblem-input"
 import { PossibleEmblems } from "../../components/emblems/types"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
 import WinButton from "../../components/buttons/win-button"
@@ -57,44 +57,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '2em'
     }
 }));
-
-type EmblemCarouselClasses = 'emblem'
-const EmblemCarousel = (props: {
-    classes: Partial<Record<EmblemCarouselClasses, string>>
-    emblemType: PossibleEmblems
-    onClick(): void
-    onDoubleClick(): void
-}) => {
-    const {
-        classes,
-        emblemType,
-        onClick,
-        onDoubleClick
-    } = props
-
-    let timeout: any = null
-    return (
-        <span
-            onClick={function (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
-                if (!timeout) {
-                    timeout = setTimeout(function () {
-                        onClick()
-                        timeout = null
-                    }, 250)
-                }
-                else {
-                    onDoubleClick()
-                    clearTimeout(timeout)
-                    timeout = null
-                }
-            }}
-        >
-            {getEmblemByType(emblemType)({
-                className: classes?.emblem
-            })}
-        </span>
-    )
-}
 
 const initialState = {
     isLoading: false,
@@ -150,13 +112,11 @@ export default function NewGameMobileView(props: NewGameViewProps) {
         console.log(state)
     })
 
-    const leftEmblem = React.useMemo(() => {
-        console.log('Rerender')
+    const leftEmblemInput = React.useMemo(() => {
         return (
-            <EmblemCarousel
+            <EmblemInput
                 emblemType={getHomeEmblem(state)}
                 onClick={() => {
-                    console.log('Left emblem clicked')
                     setState((oldState) => {
                         const newTempLeftEmblemIndex = oldState.leftEmblemIndex + 1
                         const newLeftEmblemIndex = newTempLeftEmblemIndex > oldState.allEmblems.length - 1
@@ -171,7 +131,6 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     })
                 }}
                 onDoubleClick={() => {
-                    console.log('Left emblem double clicked')
                     setState((oldState) => {
                         const newTempLeftEmblemIndex = oldState.leftEmblemIndex - 1
                         const newLeftEmblemIndex = newTempLeftEmblemIndex < 0
@@ -191,13 +150,11 @@ export default function NewGameMobileView(props: NewGameViewProps) {
             />
         )
     }, [state.leftEmblem, classes.rowEmblem, classes.rowLeft])
-    const rightEmblem = React.useMemo(() => {
-        console.log('Rerender')
+    const rightEmblemInput = React.useMemo(() => {
         return (
-            <EmblemCarousel
+            <EmblemInput
                 emblemType={getAwayEmblem(state)}
                 onClick={() => {
-                    console.log('Right emblem clicked')
                     setState((oldState) => {
                         const newTempRightEmblemIndex = oldState.rightEmblemIndex + 1
                         const newRightEmblemIndex = newTempRightEmblemIndex > oldState.allEmblems.length - 1
@@ -212,7 +169,6 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     })
                 }}
                 onDoubleClick={() => {
-                    console.log('Right emblem double clicked')
                     setState((oldState) => {
                         const newTempRightEmblemIndex = oldState.rightEmblemIndex - 1
                         const newRightEmblemIndex = newTempRightEmblemIndex < 0
@@ -300,11 +256,11 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     Zapas:
                 </div>
                 <div className={classes.versusRow} >
-                    {leftEmblem}
+                    {leftEmblemInput}
                     <span className={classes.rowCenter}                    >
                         vs
                     </span>
-                    {rightEmblem}
+                    {rightEmblemInput}
                 </div>
 
                 <div className={classes.text}>
