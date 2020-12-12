@@ -1,12 +1,15 @@
 import React from "react"
 import clsx from 'clsx'
+import ScoreInput from '../../components/inputs/score-input'
 import { NewGameViewProps } from "../types"
-import { Box, Button, makeStyles, TextField, } from "@material-ui/core"
+import { Box, Button, makeStyles } from "@material-ui/core"
 import { getEmblemByType } from "../../components/emblems/helpers"
 import { PossibleEmblems } from "../../components/emblems/types"
 import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
 import { GameType } from '../../api/models/game-type-enum'
 import * as historiesService from "../../services/histories-service"
+import { useHistory } from "react-router-dom"
+import { getGameResultsRoute } from "../../routes/game-results-routes"
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -145,20 +148,21 @@ const initialState = {
 function isNegative(value: number) {
     return 0 > value
 }
-function isInputInvalid(value: number) {
-    return true === isNegative(value)
-}
 function isClassicButtonValidation(leftValue: number, rightValue: number) {
     return isNegative(leftValue) || isNegative(rightValue)
         || leftValue === rightValue
 }
 function isNonClassicButtonValidation(leftValue: number, rightValue: number) {
+    console.log(1 !== Math.abs(rightValue - leftValue))
+    console.log(Math.abs(rightValue - leftValue))
     return isClassicButtonValidation(leftValue, rightValue)
-        || 1 !== Math.abs(leftValue - rightValue)
+        || 1 !== Math.abs(rightValue - leftValue)
 }
 
 export default function NewGameMobileView(props: NewGameViewProps) {
     const classes = useStyles()
+    const routerHistory = useHistory()
+
     const [state, setState] = React.useState({ ...initialState })
 
     const winnerEmblem: PossibleEmblems | undefined
@@ -274,12 +278,26 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                 gameType,
             })
 
-            newHistory && setState((oldState) => {
-                return {
-                    ...oldState,
-                    isLoading: false
-                }
-            })
+            if (newHistory) {
+                setState((oldState) => {
+                    return {
+                        ...oldState,
+                        isLoading: false
+                    }
+                })
+
+                routerHistory.push(getGameResultsRoute({
+                    gameId: newHistory.id
+                }))
+            } else {
+                setState((oldState) => {
+                    return {
+                        ...oldState,
+                        isLoading: false
+                    }
+                })
+                prompt('Error during game creation')
+            }
         }
 
         return saveGame
@@ -303,55 +321,40 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     Score:
                 </div>
                 <div className={classes.versusRow} >
-                    <TextField
-                        required={true}
-                        error={isInputInvalid(state.leftScoreValue)}
-                        type={'number'}
+                    <ScoreInput
                         label={'Home'}
-                        className={classes.rowLeft}
-                        inputProps={{
-                            className: clsx(classes.scoreInput, classes.textAlignRight)
+                        classes={{
+                            rowSide: classes.rowLeft,
+                            inputAlign: classes.textAlignRight
                         }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        placeholder={'0'}
-                        size='medium'
-                        onChange={(event) => {
-                            const value = Number(event.target.value)
+                        onScoreChange={(newHomeScore) => {
                             setState((oldState) => {
                                 return {
                                     ...oldState,
-                                    leftScoreValue: value
+                                    leftScoreValue: newHomeScore
                                 }
                             })
                         }}
+                        scoreValue={state.leftScoreValue}
                     />
                     <div className={classes.rowCenter}>
                         :
                     </div>
-                    <TextField
-                        required={true}
-                        error={isInputInvalid(state.rightScoreValue)}
-                        type={'number'}
+                    <ScoreInput
                         label={'Away'}
-                        className={classes.rowRight}
-                        inputProps={{
-                            className: clsx(classes.scoreInput, classes.textAlignLeft)
+                        classes={{
+                            rowSide: classes.rowRight,
+                            inputAlign: classes.textAlignLeft
                         }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        placeholder={'0'}
-                        onChange={(event) => {
-                            const value = Number(event.target.value)
+                        onScoreChange={(newAwayScore) => {
                             setState((oldState) => {
                                 return {
                                     ...oldState,
-                                    rightScoreValue: value
+                                    rightScoreValue: newAwayScore
                                 }
                             })
                         }}
+                        scoreValue={state.rightScoreValue}
                     />
                 </div>
                 <Box style={{ display: 'grid' }}>
