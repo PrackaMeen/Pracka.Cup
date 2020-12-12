@@ -112,82 +112,108 @@ export default function NewGameMobileView(props: NewGameViewProps) {
         console.log(state)
     })
 
-    const leftEmblemInput = React.useMemo(() => {
+    const nextHomeEmblem = React.useCallback(() => {
+        function handleHomeEmblemNextChange() {
+            setState((oldState) => {
+                const newTempLeftEmblemIndex = oldState.leftEmblemIndex + 1
+                const newLeftEmblemIndex = newTempLeftEmblemIndex > oldState.allEmblems.length - 1
+                    ? 0
+                    : newTempLeftEmblemIndex
+
+                return {
+                    ...oldState,
+                    leftEmblemIndex: newLeftEmblemIndex,
+                    leftEmblem: oldState.allEmblems[newLeftEmblemIndex]
+                }
+            })
+        }
+
+        return handleHomeEmblemNextChange
+    }, [])
+    const previousHomeEmblem = React.useCallback(() => {
+        function handleHomeEmblemPreviousChange() {
+            setState((oldState) => {
+                const newTempLeftEmblemIndex = oldState.leftEmblemIndex - 1
+                const newLeftEmblemIndex = newTempLeftEmblemIndex < 0
+                    ? oldState.allEmblems.length - 1
+                    : newTempLeftEmblemIndex
+
+                return {
+                    ...oldState,
+                    leftEmblemIndex: newLeftEmblemIndex,
+                    leftEmblem: oldState.allEmblems[newLeftEmblemIndex]
+                }
+            })
+        }
+
+        return handleHomeEmblemPreviousChange
+    }, [])
+    const nextAwayEmblem = React.useCallback(() => {
+        function handleAwayEmblemNextChange() {
+            setState((oldState) => {
+                const newTempRightEmblemIndex = oldState.rightEmblemIndex + 1
+                const newRightEmblemIndex = newTempRightEmblemIndex > oldState.allEmblems.length - 1
+                    ? 0
+                    : newTempRightEmblemIndex
+
+                return {
+                    ...oldState,
+                    rightEmblemIndex: newRightEmblemIndex,
+                    rightEmblem: oldState.allEmblems[newRightEmblemIndex]
+                }
+            })
+        }
+
+        return handleAwayEmblemNextChange
+    }, [])
+    const previousAwayEmblem = React.useCallback(() => {
+        function handleAwayEmblemPreviousChange() {
+            setState((oldState) => {
+                const newTempRightEmblemIndex = oldState.rightEmblemIndex - 1
+                const newRightEmblemIndex = newTempRightEmblemIndex < 0
+                    ? oldState.allEmblems.length - 1
+                    : newTempRightEmblemIndex
+
+                return {
+                    ...oldState,
+                    rightEmblemIndex: newRightEmblemIndex,
+                    rightEmblem: oldState.allEmblems[newRightEmblemIndex]
+                }
+            })
+        }
+        return handleAwayEmblemPreviousChange
+    }, [])
+
+    const homeEmblemInput = React.useMemo(() => {
         return (
             <EmblemInput
                 emblemType={getHomeEmblem(state)}
-                onClick={() => {
-                    setState((oldState) => {
-                        const newTempLeftEmblemIndex = oldState.leftEmblemIndex + 1
-                        const newLeftEmblemIndex = newTempLeftEmblemIndex > oldState.allEmblems.length - 1
-                            ? 0
-                            : newTempLeftEmblemIndex
-
-                        return {
-                            ...oldState,
-                            leftEmblemIndex: newLeftEmblemIndex,
-                            leftEmblem: oldState.allEmblems[newLeftEmblemIndex]
-                        }
-                    })
-                }}
-                onDoubleClick={() => {
-                    setState((oldState) => {
-                        const newTempLeftEmblemIndex = oldState.leftEmblemIndex - 1
-                        const newLeftEmblemIndex = newTempLeftEmblemIndex < 0
-                            ? oldState.allEmblems.length - 1
-                            : newTempLeftEmblemIndex
-
-                        return {
-                            ...oldState,
-                            leftEmblemIndex: newLeftEmblemIndex,
-                            leftEmblem: oldState.allEmblems[newLeftEmblemIndex]
-                        }
-                    })
-                }}
+                onClick={nextHomeEmblem}
+                onDoubleClick={previousHomeEmblem}
                 classes={{
                     emblem: clsx(classes.rowEmblem, classes.rowLeft),
                 }}
             />
         )
-    }, [state.leftEmblem, classes.rowEmblem, classes.rowLeft])
-    const rightEmblemInput = React.useMemo(() => {
+    }, [
+        state, classes.rowEmblem, classes.rowLeft,
+        previousHomeEmblem, nextHomeEmblem
+    ])
+    const awayEmblemInput = React.useMemo(() => {
         return (
             <EmblemInput
                 emblemType={getAwayEmblem(state)}
-                onClick={() => {
-                    setState((oldState) => {
-                        const newTempRightEmblemIndex = oldState.rightEmblemIndex + 1
-                        const newRightEmblemIndex = newTempRightEmblemIndex > oldState.allEmblems.length - 1
-                            ? 0
-                            : newTempRightEmblemIndex
-
-                        return {
-                            ...oldState,
-                            rightEmblemIndex: newRightEmblemIndex,
-                            rightEmblem: oldState.allEmblems[newRightEmblemIndex]
-                        }
-                    })
-                }}
-                onDoubleClick={() => {
-                    setState((oldState) => {
-                        const newTempRightEmblemIndex = oldState.rightEmblemIndex - 1
-                        const newRightEmblemIndex = newTempRightEmblemIndex < 0
-                            ? oldState.allEmblems.length - 1
-                            : newTempRightEmblemIndex
-
-                        return {
-                            ...oldState,
-                            rightEmblemIndex: newRightEmblemIndex,
-                            rightEmblem: oldState.allEmblems[newRightEmblemIndex]
-                        }
-                    })
-                }}
+                onClick={nextAwayEmblem}
+                onDoubleClick={previousAwayEmblem}
                 classes={{
                     emblem: clsx(classes.rowEmblem, classes.rowRight),
                 }}
             />
         )
-    }, [state.rightEmblem, classes.rowEmblem, classes.rowRight])
+    }, [
+        state, classes.rowEmblem, classes.rowRight,
+        previousAwayEmblem, nextAwayEmblem
+    ])
 
     function handleWinButtonClick(gameType: GameType) {
         async function saveGame() {
@@ -256,11 +282,11 @@ export default function NewGameMobileView(props: NewGameViewProps) {
                     Zapas:
                 </div>
                 <div className={classes.versusRow} >
-                    {leftEmblemInput}
-                    <span className={classes.rowCenter}                    >
+                    {homeEmblemInput}
+                    <span className={classes.rowCenter} >
                         vs
                     </span>
-                    {rightEmblemInput}
+                    {awayEmblemInput}
                 </div>
 
                 <div className={classes.text}>
