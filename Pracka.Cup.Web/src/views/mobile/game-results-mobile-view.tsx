@@ -4,15 +4,17 @@ import { GameResultsViewProps } from '../types'
 import MobileSiteMenu from '../../components/mobile-site-menu/mobile-site-menu'
 import { Button, makeStyles } from '@material-ui/core'
 import clsx from 'clsx'
-import { BOSTON_BRUINS, BUFFALO_SABRES, PossibleEmblems } from '../../components/emblems/types'
+import { PossibleEmblems } from '../../components/emblems/types'
 import { getEmblemByType } from '../../components/emblems/helpers'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { index as organizeGameIndexRoute } from '../../routes/organize-game-routes'
 import Divider from '@material-ui/core/Divider/Divider'
 import {
     PossibleArrows, DASH_ARROW, UP_ARROW, DOWN_ARROW
 } from '../../components/icons/types'
 import { getRankArrowByType, getRankCupByActualRank } from '../../components/icons/helpers'
+import { historiesService } from '../../services'
+import CircularProgress from '@material-ui/core/CircularProgress/CircularProgress'
 
 function GameBox(props: { value: number, className?: string }) {
     const { value, className } = props
@@ -215,29 +217,54 @@ function UserGameStats(props: {
 export default function GameResultsMobileView(props: GameResultsViewProps) {
     const classes = useStyles()
     const routerHistory = useHistory()
+    const routerParams = useParams<{ gameId: string }>()
 
-    const gameResultsModel: GameResultViewModelType = {
-        winnerStats: {
-            userName: 'Marek',
-            iconType: BOSTON_BRUINS,
-            hasWon: true,
-            actualRank: 1,
-            oldRank: 2,
-            classicGamesWon: 52,
-            overtimesGamesWon: 10,
-            shootoutGamesWon: 14
-        },
-        gameType: 'SHOOTOUT',
-        loserStats: {
-            userName: 'Pracka',
-            iconType: BUFFALO_SABRES,
-            hasWon: false,
-            actualRank: 4,
-            oldRank: 3,
-            classicGamesWon: 42,
-            overtimesGamesWon: 23,
-            shootoutGamesWon: 32
+    const [gameResult, setGameResult] = React.useState<GameResultViewModelType | null>(null)
+
+    React.useEffect(() => {
+        const gameId = Number(routerParams.gameId)
+        if (gameId && !Number.isNaN(gameId)) {
+            const fetchData = async () => {
+                let gameResultsModel = await historiesService.getGameStatsHistoryBy(gameId)
+                console.log(gameResultsModel)
+
+                // const gameResultsModel: GameResultViewModelType = {
+                //     winnerStats: {
+                //         userName: 'Marek',
+                //         iconType: BOSTON_BRUINS,
+                //         hasWon: true,
+                //         actualRank: 1,
+                //         oldRank: 2,
+                //         classicGamesWon: 52,
+                //         overtimesGamesWon: 10,
+                //         shootoutGamesWon: 14
+                //     },
+                //     gameType: 'SHOOTOUT',
+                //     loserStats: {
+                //         userName: 'Pracka',
+                //         iconType: BUFFALO_SABRES,
+                //         hasWon: false,
+                //         actualRank: 4,
+                //         oldRank: 3,
+                //         classicGamesWon: 42,
+                //         overtimesGamesWon: 23,
+                //         shootoutGamesWon: 32
+                //     }
+                // }
+
+                setGameResult(gameResultsModel)
+            }
+
+            fetchData()
         }
+    }, [routerParams.gameId])
+
+    if (!gameResult) {
+        return (
+            <MobileSiteMenu>
+                <CircularProgress />
+            </MobileSiteMenu>
+        )
     }
 
     return (
@@ -248,8 +275,8 @@ export default function GameResultsMobileView(props: GameResultsViewProps) {
                     rankLabel={'Poradie'}
                     bilanceLabel={'Bilancia:'}
                     classes={classes}
-                    currentGameType={gameResultsModel.gameType}
-                    model={gameResultsModel.winnerStats}
+                    currentGameType={gameResult.gameType}
+                    model={gameResult.winnerStats}
                 />
                 <Button
                     className={classes.againButton}
@@ -262,8 +289,8 @@ export default function GameResultsMobileView(props: GameResultsViewProps) {
                     rankLabel={'Poradie'}
                     bilanceLabel={'Bilancia:'}
                     classes={classes}
-                    currentGameType={gameResultsModel.gameType}
-                    model={gameResultsModel.loserStats}
+                    currentGameType={gameResult.gameType}
+                    model={gameResult.loserStats}
                 />
             </div>
         </MobileSiteMenu>

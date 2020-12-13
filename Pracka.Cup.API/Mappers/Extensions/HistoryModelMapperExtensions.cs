@@ -3,47 +3,25 @@
     using AutoMapper;
     using Pracka.Cup.API.Models;
     using Pracka.Cup.Database.Models;
-    using Pracka.Cup.Database.Enums;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
 
-    public static class HistoryModelMapperExtensions
+    public static class TeamModelMapperExtensions
     {
-        private static TeamResultEnum GetHomeTeamResultByScore(int homeGoals, int awayGoals)
+        public static TeamModel ToTeamModel(this IMapper mapper, CreateTeamDto createTeamDto)
         {
-            return homeGoals - awayGoals > 0 ? TeamResultEnum.VICTORY : TeamResultEnum.LOSS;
-        }
-        private static TeamResultEnum GetAwayTeamResultByScore(int homeGoals, int awayGoals)
-        {
-            return homeGoals - awayGoals < 0 ? TeamResultEnum.VICTORY : TeamResultEnum.LOSS;
+            var teamModel = mapper.Map<CreateTeamDto, TeamModel>(createTeamDto);
+            return teamModel;
         }
 
-        public static HistoryModel ToHistoryModel(this IMapper mapper, CreateHistoryDto historyDto)
+        public static TeamModel ToTeamModel(this IMapper mapper, TeamDto teamDto)
         {
-            var historyModel = mapper.Map<CreateHistoryDto, HistoryModel>(historyDto);
-
-            historyModel.ResultKindAwayTeam = GetAwayTeamResultByScore(historyModel.GoalsHomeTeam, historyModel.GoalsAwayTeam);
-            historyModel.ResultKindHomeTeam = GetHomeTeamResultByScore(historyModel.GoalsHomeTeam, historyModel.GoalsAwayTeam);
-
-            return historyModel;
+            var teamModel = mapper.Map<TeamDto, TeamModel>(teamDto);
+            return teamModel;
         }
 
-        public static HistoryModel ToHistoryModel(this IMapper mapper, HistoryDto historyDto)
+        public static TeamDto ToTeamDto(this IMapper mapper, TeamModel teamModel)
         {
-            var historyModel = mapper.Map<HistoryDto, HistoryModel>(historyDto);
-
-            historyModel.ResultKindAwayTeam = GetAwayTeamResultByScore(historyModel.GoalsHomeTeam, historyModel.GoalsAwayTeam);
-            historyModel.ResultKindHomeTeam = GetHomeTeamResultByScore(historyModel.GoalsHomeTeam, historyModel.GoalsAwayTeam);
-
-            return historyModel;
-        }
-
-        public static HistoryDto ToHistoryDto(this IMapper mapper, HistoryModel historyModel)
-        {
-            var historyDto = mapper.Map<HistoryModel, HistoryDto>(historyModel);
-
-            return historyDto;
+            var teamModelDto = mapper.Map<TeamModel, TeamDto>(teamModel);
+            return teamModelDto;
         }
     }
 }

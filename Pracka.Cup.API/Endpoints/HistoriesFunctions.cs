@@ -77,6 +77,30 @@ namespace Pracka.Cup.API.Endpoints
             }
         }
 
+        [FunctionName(nameof(GetHistoryByIdWithStats))]
+        public async Task<IActionResult> GetHistoryByIdWithStats(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = GET_HISTORY_BY_ID_WITH_STATS)] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetHistoryById)}.");
+
+                string path = req.Path.Value;
+                int id = GetIdFromPathPart(regexHistoryId, path, HISTORIES);
+
+                var historyWithStatsDto = await _historiesService.GetGameHistoryStatsBy(id);
+
+                var response = new ResponseModel<HistoryWithStatsDto>(historyWithStatsDto, req.Path);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
+        }
+
         [FunctionName(nameof(CreateHistory))]
         public async Task<IActionResult> CreateHistory(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = CREATE_HISTORY)] HttpRequest req,

@@ -13,7 +13,7 @@
    version="1.1"
    id="svg7825"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   sodipodi:docname="dash.svg">
+   sodipodi:docname="dash-icon.svg">
   <defs
      id="defs7819" />
   <sodipodi:namedview
@@ -43,7 +43,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -53,7 +53,7 @@
      id="layer1">
     <path
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.96904px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 1.3247274,62.002449 V 2.931099 H 208.07409 v 59.07135 z"
+       d="M 1.3247274,172.59876 V 113.52707 H 208.07409 v 59.07169 z"
        id="path2040-1" />
   </g>
 </svg>

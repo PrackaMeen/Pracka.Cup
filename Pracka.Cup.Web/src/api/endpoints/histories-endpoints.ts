@@ -2,6 +2,7 @@ import { getHttpHandler, postHttpHandler } from '../handler'
 import { HistoryDto } from '../models/history-dto'
 import { CreateHistoryDto } from '../models/create-history-dto'
 import { ResponseModel } from '../response-model'
+import { GameStatsHistoryDto } from '../models/game-stats-history-dto'
 
 export async function getAllHistories(): Promise<HistoryDto[]> {
     try {
@@ -39,5 +40,20 @@ export async function createHistory(createHistory: CreateHistoryDto): Promise<Hi
     catch (ex) {
         console.error(ex)
         return undefined
+    }
+}
+
+export async function getGameHistoryStats(historyId: number): Promise<GameStatsHistoryDto | null> {
+    try {
+        var result = await getHttpHandler({
+            relativeUrl: `/api/histories/${historyId}/stats`
+        })
+
+        var response: ResponseModel<GameStatsHistoryDto, null> = await result.json()
+        return response.data
+    }
+    catch (ex) {
+        console.error(ex)
+        return null
     }
 }
