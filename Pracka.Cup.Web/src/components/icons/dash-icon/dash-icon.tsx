@@ -5,6 +5,6 @@ import dashIconSvg from './dash-icon.svg'
 
 export default function DashIcon(props: CommonIconProps) {
     return (
-        <SvgContainer src={dashIconSvg} style={props} />
+        <SvgContainer {...props} src={dashIconSvg} />
     )
 }

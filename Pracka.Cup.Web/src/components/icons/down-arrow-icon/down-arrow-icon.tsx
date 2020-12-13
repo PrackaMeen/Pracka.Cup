@@ -5,6 +5,6 @@ import downArrowSvg from './down-arrow-icon.svg'
 
 export default function DownArrowIcon(props: CommonIconProps) {
     return (
-        <SvgContainer src={downArrowSvg} style={props} />
+        <SvgContainer {...props} src={downArrowSvg} />
     )
 }

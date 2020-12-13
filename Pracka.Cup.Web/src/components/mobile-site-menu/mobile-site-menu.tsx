@@ -104,7 +104,11 @@ function MobileSiteMenuButton(props: SiteMenuProps) {
           containedPrimary: classes?.containedPrimary
         }}
       >
-        <BurgerMenuIcon height={'1.75em'} />
+        <BurgerMenuIcon
+          style={{
+            height: '1.75em'
+          }}
+        />
       </Button>
       <StyledMenu
         id="customized-menu"

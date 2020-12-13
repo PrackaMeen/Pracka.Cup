@@ -5,6 +5,6 @@ import dashIconSvg from './burger-menu-icon.svg'
 
 export default function BurgerMenuIcon(props: CommonIconProps) {
     return (
-        <SvgContainer src={dashIconSvg} style={props} />
+        <SvgContainer {...props} src={dashIconSvg} />
     )
 }

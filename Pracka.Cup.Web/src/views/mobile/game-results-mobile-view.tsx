@@ -1,12 +1,14 @@
-import React from "react"
-import { GameResultsViewProps } from "../types"
-import MobileSiteMenu from "../../components/mobile-site-menu/mobile-site-menu"
-import { Button, makeStyles } from "@material-ui/core"
-import clsx from "clsx"
-import { BOSTON_BRUINS, BUFFALO_SABRES, PossibleEmblems } from "../../components/emblems/types"
-import { getEmblemByType } from "../../components/emblems/helpers"
-import { useHistory } from "react-router-dom"
+import React from 'react'
+import { CLASSIC, GameResultType, GameResultViewModelType, OVERTIME, SHOOTOUT, GameStatsViewModelType } from '../../models/game-result-view-data'
+import { GameResultsViewProps } from '../types'
+import MobileSiteMenu from '../../components/mobile-site-menu/mobile-site-menu'
+import { Button, makeStyles } from '@material-ui/core'
+import clsx from 'clsx'
+import { BOSTON_BRUINS, BUFFALO_SABRES, DASH_ARROW, DOWN_ARROW, FIRST_RANK, OTHER_RANK, PossibleArrows, PossibleEmblems, PossibleRanks, SECOND_RANK, THIRD_RANK, UP_ARROW } from '../../components/emblems/types'
+import { getEmblemByType, getRankArrowByType, getRankCupByType } from '../../components/emblems/helpers'
+import { useHistory } from 'react-router-dom'
 import { index as organizeGameIndexRoute } from '../../routes/organize-game-routes'
+import Divider from '@material-ui/core/Divider/Divider'
 
 function GameBox(props: { value: number, className?: string }) {
     const { value, className } = props
@@ -19,13 +21,20 @@ const useStyles = makeStyles(() => {
     return {
         statsBox: {
             position: 'relative',
-            left: '50%',
-            fontSize:'1.4em'
+            left: '47%',
+            fontSize: '1.4em'
+        },
+        statsDivider: {
+            height: '0.1em',
+            backgroundColor: 'black'
         },
         statsLabel: {
             position: 'relative',
             left: '0%',
-            fontSize:'1.4em'
+            fontSize: '1.4em'
+        },
+        bilanceLabel: {
+            left: '15%'
         },
         title: {
             fontSize: '3em',
@@ -44,7 +53,7 @@ const useStyles = makeStyles(() => {
         },
         titleEmblem: {
             position: 'relative',
-            height: '10em'
+            height: '9em'
         },
         winner: {
             color: 'green'
@@ -52,13 +61,19 @@ const useStyles = makeStyles(() => {
         loser: {
             color: 'red'
         },
-        buttonAgain: {
+        againButton: {
             margin: '0.3em 0em',
             fontSize: '2.2em',
             backgroundColor: '#e9e9e9',
             '&:hover': {
                 backgroundColor: '#e9e9e9',
             }
+        },
+        cup: {
+            height: '4em',
+            position: 'relative',
+            left: '45%',
+            padding: '0 0.3em'
         }
     }
 })
@@ -67,35 +82,56 @@ const TeamEmblem = (props: { iconType: PossibleEmblems, className?: string }) =>
     return getEmblemByType(props.iconType)({ className: props.className })
 }
 
-type StatsModelType = {
-    userName: string
-    iconType: PossibleEmblems
+const RankCup = (props: { currentRank: number, className?: string }) => {
+    let iconType: PossibleRanks = OTHER_RANK
+    switch (props.currentRank) {
+        case 1: {
+            iconType = FIRST_RANK
+            break
+        }
+        case 2: {
+            iconType = SECOND_RANK
+            break
+        }
+        case 3: {
+            iconType = THIRD_RANK
+            break
+        }
+        default: {
+            break
+        }
+    }
+    return getRankCupByType(iconType)({ className: props.className })
+}
+const RelativeRankChange = (props: { currentRank: number, oldRank: number, className?: string }) => {
+    const rankDifference = props.oldRank - props.currentRank
+    const iconType: PossibleArrows = 0 === rankDifference
+        ? DASH_ARROW
+        : 0 < rankDifference
+            ? UP_ARROW
+            : DOWN_ARROW
+    return getRankArrowByType(iconType)({ className: props.className })
 }
 
-type WinStatsModelType = {
-    numberOfWinGamesAgainst: number
-    numberOfWinAfterOvertimeGamesAgainst: number
-    numberOfWinAfterShootoutGamesAgainst: number
-} & StatsModelType
-type LostStatsModelType = {
-    numberOfLostGamesAgainst: number
-    numberOfLostAfterOvertimeGamesAgainst: number
-    numberOfLostAfterShootoutGamesAgainst: number
-} & StatsModelType
-
-type UserStatsClasses = 'grid' | 'gridRow' | 'title' | 'titleEmblem' | 'statsLabel' | 'statsBox' | 'winner' | 'loser' | 'gridTitle'
-function UserStats(props: {
-    title: string
-    rank: string
+type UserStatsClasses =
+    | 'grid' | 'gridRow' | 'title' | 'titleEmblem' | 'bilanceLabel' | 'statsDivider'
+    | 'statsLabel' | 'statsBox' | 'winner' | 'loser' | 'gridTitle' | 'cup'
+function UserGameStats(props: {
+    titleLabel: string
+    rankLabel: string
+    bilanceLabel: string
     classes: Partial<Record<UserStatsClasses, string>>
     currentGameType: GameResultType
-    model: StatsModelType & {
-        classicGames: number
-        overtimesGames: number
-        shootoutGames: number
-    }
+    model: GameStatsViewModelType
 }) {
-    const { classes, currentGameType, title, rank, model } = props
+    const {
+        classes,
+        currentGameType,
+        titleLabel: title,
+        rankLabel: rank,
+        bilanceLabel: bilance,
+        model
+    } = props
 
     function getBoxClass(args: {
         resultType: GameResultType,
@@ -116,6 +152,10 @@ function UserStats(props: {
                 />
                 <div className={classes.grid}>
                     <div className={classes.title}>{title}</div>
+                    <Divider
+                        variant={'middle'}
+                        classes={{ middle: classes.statsDivider }}
+                    />
                     <div className={classes.title}>{model.userName}</div>
                 </div>
             </div>
@@ -124,35 +164,52 @@ function UserStats(props: {
                     <div className={classes.gridRow}>
                         <div className={classes.gridTitle}>{rank}</div>
                         <div className={classes.grid}>
-                            <div>Pohar</div>
-                            <div>Sipka</div>
+                            <div className={classes.gridRow}>
+                                <RankCup
+                                    currentRank={model.actualRank}
+                                    className={classes.cup}
+                                />
+                                <RelativeRankChange
+                                    currentRank={model.actualRank}
+                                    oldRank={model.oldRank}
+                                    className={classes.cup}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className={classes.gridRow}>
-                        <div className={classes.statsLabel}>Bilancia:</div>
+                        <div className={clsx(classes.statsLabel, classes.bilanceLabel)}>
+                            {bilance}
+                        </div>
                         <GameBox
-                            value={model.classicGames}
+                            value={model.classicGamesWon}
                             className={getBoxClass({
-                                className: classes.winner,
-                                resultType: 'CLASSIC',
+                                className: model.hasWon
+                                    ? classes.winner
+                                    : classes.loser,
+                                resultType: CLASSIC,
                                 currentType: currentGameType
                             })}
                         />
                         <div className={classes.statsBox} >/</div>
                         <GameBox
-                            value={model.overtimesGames}
+                            value={model.overtimesGamesWon}
                             className={getBoxClass({
-                                className: classes.winner,
-                                resultType: 'OVERTIME',
+                                className: model.hasWon
+                                    ? classes.winner
+                                    : classes.loser,
+                                resultType: OVERTIME,
                                 currentType: currentGameType
                             })}
                         />
                         <div className={classes.statsBox} >/</div>
                         <GameBox
-                            value={model.shootoutGames}
+                            value={model.shootoutGamesWon}
                             className={getBoxClass({
-                                className: classes.winner,
-                                resultType: 'SHOOTOUT',
+                                className: model.hasWon
+                                    ? classes.winner
+                                    : classes.loser,
+                                resultType: SHOOTOUT,
                                 currentType: currentGameType
                             })}
                         />
@@ -162,90 +219,59 @@ function UserStats(props: {
         </>
     )
 }
-function UserWinStats(props: {
-    title: string
-    rank: string
-    classes: Partial<Record<UserStatsClasses, string>>
-    currentGameType: GameResultType
-    model: WinStatsModelType
-}) {
-    const { model } = props
 
-    return (
-        <UserStats
-            {...props}
-            model={{
-                ...model,
-                classicGames: model.numberOfWinGamesAgainst,
-                overtimesGames: model.numberOfWinAfterOvertimeGamesAgainst,
-                shootoutGames: model.numberOfWinAfterShootoutGamesAgainst
-            }}
-        />
-    )
-}
-function UserLostStats(props: {
-    title: string
-    rank: string
-    classes: Partial<Record<UserStatsClasses, string>>
-    currentGameType: GameResultType
-    model: LostStatsModelType
-}) {
-    const { model } = props
-
-    return (
-        <UserStats
-            {...props}
-            model={{
-                ...model,
-                classicGames: model.numberOfLostGamesAgainst,
-                overtimesGames: model.numberOfLostAfterOvertimeGamesAgainst,
-                shootoutGames: model.numberOfLostAfterShootoutGamesAgainst
-            }}
-        />
-    )
-}
-
-type GameResultType = 'CLASSIC' | 'OVERTIME' | 'SHOOTOUT'
 export default function GameResultsMobileView(props: GameResultsViewProps) {
     const classes = useStyles()
     const routerHistory = useHistory()
 
-    const currentGameType: GameResultType = 'CLASSIC'
+    const gameResultsModel: GameResultViewModelType = {
+        winnerStats: {
+            userName: 'Marek',
+            iconType: BOSTON_BRUINS,
+            hasWon: true,
+            actualRank: 1,
+            oldRank: 2,
+            classicGamesWon: 52,
+            overtimesGamesWon: 10,
+            shootoutGamesWon: 14
+        },
+        gameType: 'SHOOTOUT',
+        loserStats: {
+            userName: 'Pracka',
+            iconType: BUFFALO_SABRES,
+            hasWon: false,
+            actualRank: 2,
+            oldRank: 1,
+            classicGamesWon: 42,
+            overtimesGamesWon: 23,
+            shootoutGamesWon: 32
+        }
+    }
 
     return (
         <MobileSiteMenu>
             <div className={classes.grid}>
-                <UserWinStats
-                    title={'Vyhra'}
-                    rank={'Poradie'}
+                <UserGameStats
+                    titleLabel={'Vyhra'}
+                    rankLabel={'Poradie'}
+                    bilanceLabel={'Bilancia:'}
                     classes={classes}
-                    currentGameType={currentGameType}
-                    model={{
-                        userName: 'Marek',
-                        iconType: BOSTON_BRUINS,
-                        numberOfWinGamesAgainst: 52,
-                        numberOfWinAfterOvertimeGamesAgainst: 10,
-                        numberOfWinAfterShootoutGamesAgainst: 14
-                    }}
+                    currentGameType={gameResultsModel.gameType}
+                    model={gameResultsModel.winnerStats}
                 />
                 <Button
-                    className={classes.buttonAgain}
+                    className={classes.againButton}
                     onClick={() => { routerHistory.push(organizeGameIndexRoute) }}
                 >
-                    Hraj Znova
+                    {'Hraj Znova'}
                 </Button>
-                <UserLostStats
-                    title={'Prehra'}
-                    rank={'Poradie'}
+                <UserGameStats
+                    titleLabel={'Prehra'}
+                    rankLabel={'Poradie'}
+                    bilanceLabel={'Bilancia:'}
                     classes={classes}
-                    currentGameType={currentGameType}
-                    model={{
-                        userName: 'Pracka',
-                        iconType: BUFFALO_SABRES,
-                        numberOfLostGamesAgainst: 42,
-                        numberOfLostAfterOvertimeGamesAgainst: 23,
-                        numberOfLostAfterShootoutGamesAgainst: 32
-                    }}
+                    currentGameType={gameResultsModel.gameType}
+                    model={gameResultsModel.loserStats}
                 />
             </div>
         </MobileSiteMenu>
