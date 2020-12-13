@@ -4,11 +4,15 @@ import { GameResultsViewProps } from '../types'
 import MobileSiteMenu from '../../components/mobile-site-menu/mobile-site-menu'
 import { Button, makeStyles } from '@material-ui/core'
 import clsx from 'clsx'
-import { BOSTON_BRUINS, BUFFALO_SABRES, DASH_ARROW, DOWN_ARROW, FIRST_RANK, OTHER_RANK, PossibleArrows, PossibleEmblems, PossibleRanks, SECOND_RANK, THIRD_RANK, UP_ARROW } from '../../components/emblems/types'
-import { getEmblemByType, getRankArrowByType, getRankCupByType } from '../../components/emblems/helpers'
+import { BOSTON_BRUINS, BUFFALO_SABRES, PossibleEmblems } from '../../components/emblems/types'
+import { getEmblemByType } from '../../components/emblems/helpers'
 import { useHistory } from 'react-router-dom'
 import { index as organizeGameIndexRoute } from '../../routes/organize-game-routes'
 import Divider from '@material-ui/core/Divider/Divider'
+import {
+    PossibleArrows, DASH_ARROW, UP_ARROW, DOWN_ARROW
+} from '../../components/icons/types'
+import { getRankArrowByType, getRankCupByActualRank } from '../../components/icons/helpers'
 
 function GameBox(props: { value: number, className?: string }) {
     const { value, className } = props
@@ -70,38 +74,26 @@ const useStyles = makeStyles(() => {
             }
         },
         cup: {
-            height: '4em',
+            width: '4em',
+            height: '4.6em',
             position: 'relative',
             left: '45%',
-            padding: '0 0.3em'
+            padding: '0 0.3em',
+
         }
     }
 })
 
 const TeamEmblem = (props: { iconType: PossibleEmblems, className?: string }) => {
-    return getEmblemByType(props.iconType)({ className: props.className })
+    return getEmblemByType(props.iconType)({
+        className: props.className
+    })
 }
 
 const RankCup = (props: { currentRank: number, className?: string }) => {
-    let iconType: PossibleRanks = OTHER_RANK
-    switch (props.currentRank) {
-        case 1: {
-            iconType = FIRST_RANK
-            break
-        }
-        case 2: {
-            iconType = SECOND_RANK
-            break
-        }
-        case 3: {
-            iconType = THIRD_RANK
-            break
-        }
-        default: {
-            break
-        }
-    }
-    return getRankCupByType(iconType)({ className: props.className })
+    return getRankCupByActualRank(props.currentRank)({
+        className: props.className
+    })
 }
 const RelativeRankChange = (props: { currentRank: number, oldRank: number, className?: string }) => {
     const rankDifference = props.oldRank - props.currentRank
@@ -115,7 +107,7 @@ const RelativeRankChange = (props: { currentRank: number, oldRank: number, class
 
 type UserStatsClasses =
     | 'grid' | 'gridRow' | 'title' | 'titleEmblem' | 'bilanceLabel' | 'statsDivider'
-    | 'statsLabel' | 'statsBox' | 'winner' | 'loser' | 'gridTitle' | 'cup'
+    | 'statsLabel' | 'statsBox' | 'winner' | 'loser' | 'gridTitle' | 'cup' | 'svgBackground'
 function UserGameStats(props: {
     titleLabel: string
     rankLabel: string
@@ -240,8 +232,8 @@ export default function GameResultsMobileView(props: GameResultsViewProps) {
             userName: 'Pracka',
             iconType: BUFFALO_SABRES,
             hasWon: false,
-            actualRank: 2,
-            oldRank: 1,
+            actualRank: 4,
+            oldRank: 3,
             classicGamesWon: 42,
             overtimesGamesWon: 23,
             shootoutGamesWon: 32
