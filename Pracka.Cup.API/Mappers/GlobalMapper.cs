@@ -12,6 +12,7 @@
                 configuration.AddProfile<HistoryProfile>();
                 configuration.AddProfile<PlayerProfile>();
                 configuration.AddProfile<TeamProfile>();
+                configuration.AddProfile<PlayerHistoryProfile>();
             });
             //configurationProvider.CompileMappings();
 

@@ -12,6 +12,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -167,6 +168,62 @@
             return await this.GetAllHistories(withTeamsDetail: true, withPlayersDetail: true);
         }
 
+        private int getActualRank()
+        {
+            return 0;
+        }
+
+        private int getPreviousRank()
+        {
+            return 0;
+        }
+
+        private UserStatsDto GetUserStatsFrom(TeamResultEnum resultEnum, HistoryModel historyModel, HistoryModel[] allCommonHistory)
+        {
+            var playerId = resultEnum == historyModel.ResultKindHomeTeam
+                ? historyModel.PlayerHomeTeamId
+                : historyModel.PlayerAwayTeamId;
+            var teamId = resultEnum == historyModel.ResultKindHomeTeam
+                ? historyModel.HomeTeamId
+                : historyModel.AwayTeamId;
+
+            var winsForPlayer = allCommonHistory.Where((commonHistory) =>
+            {
+                return commonHistory.IsWinner(playerId);
+            });
+
+            var classicWinsForPlayer = winsForPlayer.NumberOfWinsBy(GameTypeEnum.CLASSIC);
+            var overtimeWinsForPlayer = winsForPlayer.NumberOfWinsBy(GameTypeEnum.OVERTIME);
+            var shootoutWinsForPlayer = winsForPlayer.NumberOfWinsBy(GameTypeEnum.SHOOTOUT);
+
+            var player = _context.Players.FirstOrDefault((player) => playerId == player.Id);
+            var team = _context.Teams.FirstOrDefault((team) => teamId == team.Id);
+
+            var actualRank = getActualRank();
+            var previousRank = getPreviousRank();
+
+            return new UserStatsDto()
+            {
+                Player = _mapper.ToPlayerDto(player),
+                Team = _mapper.ToTeamDto(team),
+                ClassicGamesWon = classicWinsForPlayer,
+                OvertimeGamesWon = overtimeWinsForPlayer,
+                ShootoutGamesWon = shootoutWinsForPlayer,
+                ActualRank = actualRank,
+                PreviousRank = previousRank
+            };
+        }
+
+        private UserStatsDto GetLoserUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
+        {
+            return GetUserStatsFrom(TeamResultEnum.LOSS, historyModel, histories);
+        }
+
+        private UserStatsDto GetWinnerUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
+        {
+            return GetUserStatsFrom(TeamResultEnum.VICTORY, historyModel, histories);
+        }
+
         public async Task<HistoryWithStatsDto> GetGameHistoryStatsBy(int id)
         {
             var historyModel = await this.GetHistoryModelBy(id);
@@ -176,20 +233,6 @@
 
             var player2Id = historyModel.PlayerHomeTeamId;
             var team2Id = historyModel.HomeTeamId;
-
-            var winnerPlayerId = TeamResultEnum.VICTORY == historyModel.ResultKindHomeTeam
-                ? historyModel.PlayerHomeTeamId
-                : historyModel.PlayerAwayTeamId;
-            var winnerTeamId = TeamResultEnum.VICTORY == historyModel.ResultKindHomeTeam
-                ? historyModel.HomeTeamId
-                : historyModel.AwayTeamId;
-
-            var loserPlayerId = TeamResultEnum.LOSS == historyModel.ResultKindHomeTeam
-                ? historyModel.PlayerHomeTeamId
-                : historyModel.PlayerAwayTeamId;
-            var loserTeamId = TeamResultEnum.LOSS == historyModel.ResultKindHomeTeam
-                ? historyModel.HomeTeamId
-                : historyModel.AwayTeamId;
 
             var allCommonHistory = await _context.Histories
                 .Where((history) => id >= history.Id)
@@ -201,59 +244,27 @@
                 )
                 .ToArrayAsync();
 
-            //var allCommonHistory = allHistoryModels.Where((history) =>
-            //{
-            //    return (player1Id == history.PlayerAwayTeamId
-            //        || player2Id == history.PlayerAwayTeamId)
-            //        && (player1Id == history.PlayerHomeTeamId
-            //        || player2Id == history.PlayerHomeTeamId);
-            //});
-
-            var winsForWinner = allCommonHistory.Where((commonHistory) =>
-            {
-                return commonHistory.IsWinner(winnerPlayerId);
-            });
-            var winsForLoser = allCommonHistory.Where((commonHistory) =>
-            {
-                return commonHistory.IsWinner(loserPlayerId);
-            });
-
-            var classicWinsForWinner = winsForWinner.NumberOfWinsBy(GameTypeEnum.CLASSIC);
-            var overtimeWinsForWinner = winsForWinner.NumberOfWinsBy(GameTypeEnum.OVERTIME);
-            var shootoutWinsForWinner = winsForWinner.NumberOfWinsBy(GameTypeEnum.SHOOTOUT);
-
-            var classicWinsForLoser = winsForLoser.NumberOfWinsBy(GameTypeEnum.CLASSIC);
-            var overtimeWinsForLoser = winsForLoser.NumberOfWinsBy(GameTypeEnum.OVERTIME);
-            var shootoutWinsForLoser = winsForLoser.NumberOfWinsBy(GameTypeEnum.SHOOTOUT);
-
-            var winnerPlayer = _context.Players.FirstOrDefault((player) => winnerPlayerId == player.Id);
-            var winnerTeam = _context.Teams.FirstOrDefault((team) => winnerTeamId == team.Id);
-
-            var loserPlayer = _context.Players.FirstOrDefault((player) => loserPlayerId == player.Id);
-            var loserTeam = _context.Teams.FirstOrDefault((team) => loserTeamId == team.Id);
-
             var historyWithStatsDto = new HistoryWithStatsDto()
             {
-                WinnerStats = new UserStatsDto()
-                {
-                    Player = _mapper.ToPlayerDto(winnerPlayer),
-                    Team = _mapper.ToTeamDto(winnerTeam),
-                    ClassicGamesWon = classicWinsForWinner,
-                    OvertimeGamesWon = overtimeWinsForWinner,
-                    ShootoutGamesWon = shootoutWinsForWinner
-                },
+                WinnerStats = GetWinnerUserStatsFrom(historyModel, allCommonHistory),
                 GameHistory = _mapper.ToHistoryDto(historyModel),
-                LoserStats = new UserStatsDto()
-                {
-                    Player = _mapper.ToPlayerDto(loserPlayer),
-                    Team = _mapper.ToTeamDto(loserTeam),
-                    ClassicGamesWon = classicWinsForLoser,
-                    OvertimeGamesWon = overtimeWinsForLoser,
-                    ShootoutGamesWon = shootoutWinsForLoser
-                },
+                LoserStats = GetLoserUserStatsFrom(historyModel, allCommonHistory),
             };
 
             return historyWithStatsDto;
+        }
+
+        public async Task<IEnumerable<PlayerHistoryDto>> GetScoreBoard(int playerId)
+        {
+            var playerHistories = await _context.PlayerHistories
+                .Where((playerHistory) => playerId == playerHistory.PlayerId)
+                .Include((playerHistory) => playerHistory.Team)
+                .Include((playerHistory) => playerHistory.Player)
+                .Include((playerHistory) => playerHistory.Player.SelectedTeam)
+                .ToArrayAsync();
+
+            var playerHistoryDtos = _mapper.Map<PlayerHistoryModel[], PlayerHistoryDto[]>(playerHistories);
+            return playerHistoryDtos;
         }
 
         private bool IsModelValid(CreateHistoryDto createHistoryDto, out string issues)

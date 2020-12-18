@@ -19,5 +19,7 @@
         Task<HistoryDto> GetHistoryWithAllBy(int id);
 
         Task<HistoryWithStatsDto> GetGameHistoryStatsBy(int id);
+
+        Task<IEnumerable<PlayerHistoryDto>> GetScoreBoard(int personId);
     }
 }

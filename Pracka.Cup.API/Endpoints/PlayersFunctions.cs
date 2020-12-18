@@ -24,11 +24,13 @@ namespace Pracka.Cup.API.Endpoints
     public class PlayersFunctions : ApiFunctions, IPlayersEndpoints
     {
         private readonly IPlayersService _playersService;
+        private readonly IHistoriesService _historiesService;
         readonly Regex regexPlayerId = new Regex("players/\\d+/{0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public PlayersFunctions(IConfiguration configuration) : base(configuration)
         {
             _playersService = new PlayersService(base._context, base._mapper);
+            _historiesService = new HistoriesService(base._context, base._mapper);
         }
 
         [FunctionName(nameof(GetAllPlayers))]
@@ -67,6 +69,30 @@ namespace Pracka.Cup.API.Endpoints
                 var playerDto = await _playersService.GetPlayerBy(id);
 
                 var response = new ResponseModel<PlayerDto>(playerDto, req.Path);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
+        }
+
+        [FunctionName(nameof(GetPlayerHistoryById))]
+        public async Task<IActionResult> GetPlayerHistoryById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = GET_PLAYER_HISTORIES_BY_ID)] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetPlayerById)}.");
+
+                string path = req.Path.Value;
+                int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
+
+                var playerHistoryDtos = await _historiesService.GetScoreBoard(id);
+
+                var response = new ResponseModel<IEnumerable<PlayerHistoryDto>>(playerHistoryDtos, req.Path);
                 return new OkObjectResult(response);
             }
             catch (Exception ex)

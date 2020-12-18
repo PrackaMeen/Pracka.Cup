@@ -18,6 +18,7 @@
             : base(options)
         { }
 
+        public DbSet<PlayerHistoryModel> PlayerHistories { get; set; }
         public DbSet<HistoryModel> Histories { get; set; }
         public DbSet<TeamModel> Teams { get; set; }
         public DbSet<PlayerModel> Players { get; set; }
@@ -157,21 +158,37 @@
 
             SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<HistoryModel>().Metadata.GetProperties());
             #endregion History
+
+            #region PlayerHistory
+            modelBuilder.Entity<PlayerHistoryModel>()
+                .HasNoKey()
+                .Ignore("Id")
+                .ToView("PlayerHistoriesView");
+
+           // modelBuilder.Ignore<PlayerHistoryModel>();
+            #endregion PlayerHistory
         }
     }
 
     public class CupContextFactory : IDesignTimeDbContextFactory<CupContext>
     {
         private readonly IConfiguration _configuration;
+        public CupContextFactory()
+        {
+            _configuration = null;
+        }
         public CupContextFactory(IConfiguration configuration)
         {
             _configuration = configuration;
         }
         public CupContext CreateDbContext(string[] args)
         {
-            var connectionString = _configuration?.GetConnectionString("PRACKA_CUP_CONNECTION_STRING")
-                ?? Environment.GetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING");
-            
+            Environment.SetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING", "Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
+            var connectionString = null != args && args.Length > 0
+                ? args[0]
+                : _configuration?.GetConnectionString("PRACKA_CUP_CONNECTION_STRING")
+                    ?? Environment.GetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING");
+
             var optionsBuilder = new DbContextOptionsBuilder<CupContext>();
             optionsBuilder.UseSqlServer(connectionString);
 
