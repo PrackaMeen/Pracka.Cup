@@ -53,6 +53,34 @@ namespace Pracka.Cup.API.Endpoints
             }
         }
 
+        [FunctionName(nameof(BulkCreateHistories))]
+        public async Task<IActionResult> BulkCreateHistories(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = HISTORIES)] HttpRequest req,
+           ILogger log)
+        {
+            log.LogInformation($"C# HTTP trigger function processed a request {nameof(BulkCreateHistories)}.");
+            try
+            {
+                string requestBodyJson = await new StreamReader(req.Body).ReadToEndAsync();
+                var createHistoryDtos = JsonConvert.DeserializeObject<CreateHistoryDto[]>(requestBodyJson);
+
+                var historyDtos = new List<HistoryDto>();
+                foreach (var createHistoryDto in createHistoryDtos)
+                {
+                    var historyDto = await _historiesService.CreateHistory(createHistoryDto);
+                    historyDtos.Add(historyDto);
+                }
+
+                var response = new ResponseModel<CreateHistoryDto[], HistoryDto[]>(createHistoryDtos, req.Path, historyDtos.ToArray());
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
+        }
+
         [FunctionName(nameof(GetHistoryById))]
         public async Task<IActionResult> GetHistoryById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,

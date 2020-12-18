@@ -90,7 +90,31 @@ namespace Pracka.Cup.API.Endpoints
                 string path = req.Path.Value;
                 int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
 
-                var playerHistoryDtos = await _historiesService.GetScoreBoard(id);
+                var playerHistoryDtos = await _historiesService.GetPlayerHistoriesBy(id);
+
+                var response = new ResponseModel<IEnumerable<PlayerHistoryDto>>(playerHistoryDtos, req.Path);
+                return new OkObjectResult(response);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
+        }
+
+        [FunctionName(nameof(GetPlayerHistoryStatsById))]
+        public async Task<IActionResult> GetPlayerHistoryStatsById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = GET_PLAYER_HISTORIES_STATS_BY_ID)] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(GetPlayerById)}.");
+
+                string path = req.Path.Value;
+                int id = GetIdFromPathPart(regexPlayerId, path, PLAYERS);
+
+                var playerHistoryDtos = await _historiesService.GetPlayerHistoriesBy(id);
 
                 var response = new ResponseModel<IEnumerable<PlayerHistoryDto>>(playerHistoryDtos, req.Path);
                 return new OkObjectResult(response);

@@ -18,6 +18,7 @@
             : base(options)
         { }
 
+        public DbSet<ScoreBoardModel> ScoreBoards { get; set; }
         public DbSet<PlayerHistoryModel> PlayerHistories { get; set; }
         public DbSet<HistoryModel> Histories { get; set; }
         public DbSet<TeamModel> Teams { get; set; }
@@ -165,7 +166,9 @@
                 .Ignore("Id")
                 .ToView("PlayerHistoriesView");
 
-           // modelBuilder.Ignore<PlayerHistoryModel>();
+            modelBuilder.Entity<ScoreBoardModel>()
+                .HasNoKey()
+                .ToView("ScoreBoardView");
             #endregion PlayerHistory
         }
     }

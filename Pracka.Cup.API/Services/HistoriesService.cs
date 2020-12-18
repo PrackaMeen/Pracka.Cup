@@ -2,6 +2,7 @@
 {
     using AutoMapper;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Internal;
     using Pracka.Cup.API.Mappers.Extensions;
     using Pracka.Cup.API.Models;
     using Pracka.Cup.API.Services.Abstractions;
@@ -61,6 +62,28 @@
             historyDto.PlayerHomeTeam = _mapper.Map<PlayerModel, PlayerDto>(playerHomeTeam);
 
             return historyDto;
+        }
+        public async Task<int> BulkCreateHistory(IEnumerable<CreateHistoryDto> createHistoryDtos)
+        {
+            createHistoryDtos.Any((createHistoryDto) => IsModelValid(createHistoryDto, out string _));
+            if (false == createHistoryDtos.Any((createHistoryDto) => IsModelValid(createHistoryDto, out string _)))
+            {
+                throw new ArgumentException($"At least one of BulkHistory models is not valid.");
+            }
+
+            foreach (var createHistoryDto in createHistoryDtos)
+            {
+                if (false == createHistoryDto.GameDateUTC.HasValue)
+                {
+                    createHistoryDto.GameDateUTC = DateTime.UtcNow;
+                }
+            }
+
+            var createHistoryModels = createHistoryDtos.Select(_mapper.ToHistoryModel);
+            await _context.Histories.AddRangeAsync(createHistoryModels);
+            await _context.SaveChangesAsync();
+
+            return createHistoryDtos.Count();
         }
 
         public async Task<HistoryModel> GetHistoryModelBy(
@@ -168,17 +191,45 @@
             return await this.GetAllHistories(withTeamsDetail: true, withPlayersDetail: true);
         }
 
-        private int getActualRank()
+        private async Task<int> getRankById(int gameId, int playerId)
         {
-            return 0;
+            var scoreBoards = await this._context.ScoreBoards.FromSqlRaw($"SELECT * FROM [PrackaCup].[dbo].[GetScoreBoardBy]({gameId})")
+                .Include((scoreBoard) => scoreBoard.Player)
+                .ToArrayAsync();
+
+            var allRanks = scoreBoards
+                .Select((score) =>
+                {
+                    return new
+                    {
+                        Player = score.Player,
+                        Points = score.Loss1pt + score.Wins2pts + score.Wins3pts
+                    };
+                })
+                .OrderByDescending((score) => score.Points)
+                .ToArray();
+
+            var playerRank = allRanks
+                .FirstOrDefault((score) => playerId == score.Player.Id);
+
+            if(null == playerRank)
+            {
+                return scoreBoards.Length + 1;
+            }
+
+            return allRanks.IndexOf(playerRank) + 1;
+        }
+        private async Task<int> getActualRank(int historyId, int playerId)
+        {
+            return await getRankById(historyId, playerId);
         }
 
-        private int getPreviousRank()
+        private async Task<int> getPreviousRank(int historyId, int playerId)
         {
-            return 0;
+            return await getRankById(historyId - 1, playerId);
         }
 
-        private UserStatsDto GetUserStatsFrom(TeamResultEnum resultEnum, HistoryModel historyModel, HistoryModel[] allCommonHistory)
+        private async Task<UserStatsDto> GetUserStatsFrom(TeamResultEnum resultEnum, HistoryModel historyModel, HistoryModel[] allCommonHistory)
         {
             var playerId = resultEnum == historyModel.ResultKindHomeTeam
                 ? historyModel.PlayerHomeTeamId
@@ -196,11 +247,11 @@
             var overtimeWinsForPlayer = winsForPlayer.NumberOfWinsBy(GameTypeEnum.OVERTIME);
             var shootoutWinsForPlayer = winsForPlayer.NumberOfWinsBy(GameTypeEnum.SHOOTOUT);
 
-            var player = _context.Players.FirstOrDefault((player) => playerId == player.Id);
-            var team = _context.Teams.FirstOrDefault((team) => teamId == team.Id);
+            var player = await _context.Players.FirstOrDefaultAsync((player) => playerId == player.Id);
+            var team = await _context.Teams.FirstOrDefaultAsync((team) => teamId == team.Id);
 
-            var actualRank = getActualRank();
-            var previousRank = getPreviousRank();
+            var actualRank = await getActualRank(historyModel.Id, playerId);
+            var previousRank = await getPreviousRank(historyModel.Id, playerId);
 
             return new UserStatsDto()
             {
@@ -214,14 +265,14 @@
             };
         }
 
-        private UserStatsDto GetLoserUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
+        private async Task<UserStatsDto> GetLoserUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
         {
-            return GetUserStatsFrom(TeamResultEnum.LOSS, historyModel, histories);
+            return await GetUserStatsFrom(TeamResultEnum.LOSS, historyModel, histories);
         }
 
-        private UserStatsDto GetWinnerUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
+        private async Task<UserStatsDto> GetWinnerUserStatsFrom(HistoryModel historyModel, HistoryModel[] histories)
         {
-            return GetUserStatsFrom(TeamResultEnum.VICTORY, historyModel, histories);
+            return await GetUserStatsFrom(TeamResultEnum.VICTORY, historyModel, histories);
         }
 
         public async Task<HistoryWithStatsDto> GetGameHistoryStatsBy(int id)
@@ -242,19 +293,20 @@
                 .Where((history) => player1Id == history.PlayerHomeTeamId
                     || player2Id == history.PlayerHomeTeamId
                 )
+                .OrderBy((history) => history.Id)
                 .ToArrayAsync();
 
             var historyWithStatsDto = new HistoryWithStatsDto()
             {
-                WinnerStats = GetWinnerUserStatsFrom(historyModel, allCommonHistory),
+                WinnerStats = await GetWinnerUserStatsFrom(historyModel, allCommonHistory),
                 GameHistory = _mapper.ToHistoryDto(historyModel),
-                LoserStats = GetLoserUserStatsFrom(historyModel, allCommonHistory),
+                LoserStats = await GetLoserUserStatsFrom(historyModel, allCommonHistory),
             };
 
             return historyWithStatsDto;
         }
 
-        public async Task<IEnumerable<PlayerHistoryDto>> GetScoreBoard(int playerId)
+        public async Task<IEnumerable<PlayerHistoryDto>> GetPlayerHistoriesBy(int playerId)
         {
             var playerHistories = await _context.PlayerHistories
                 .Where((playerHistory) => playerId == playerHistory.PlayerId)

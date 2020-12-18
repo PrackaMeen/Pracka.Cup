@@ -16,16 +16,16 @@
                     Id = 1,
                     CreatedUTC = DateTime.Now,
                     ModifiedUTC = DateTime.Now,
-                    Icon = "BOSTON_BRUINS",
-                    Name = "Boston",
+                    Icon = "BUFFALO_SABRES",
+                    Name = "Buffalo",
                 },
                 new TeamModel()
                 {
                     Id = 2,
                     CreatedUTC = DateTime.Now,
                     ModifiedUTC = DateTime.Now,
-                    Icon = "BUFFALO_SABRES",
-                    Name = "Buffalo",
+                    Icon = "BOSTON_BRUINS",
+                    Name = "Boston",
                 },
                 new TeamModel()
                 {

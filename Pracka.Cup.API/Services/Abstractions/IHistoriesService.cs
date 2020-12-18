@@ -7,6 +7,8 @@
     public interface IHistoriesService
     {
         Task<HistoryDto> CreateHistory(CreateHistoryDto createHistoryDto);
+        Task<int> BulkCreateHistory(IEnumerable<CreateHistoryDto> createHistoryDto);
+
 
         Task<IEnumerable<HistoryDto>> GetAllHistories();
         Task<IEnumerable<HistoryDto>> GetAllHistoriesWithTeams();
@@ -20,6 +22,6 @@
 
         Task<HistoryWithStatsDto> GetGameHistoryStatsBy(int id);
 
-        Task<IEnumerable<PlayerHistoryDto>> GetScoreBoard(int personId);
+        Task<IEnumerable<PlayerHistoryDto>> GetPlayerHistoriesBy(int personId);
     }
 }

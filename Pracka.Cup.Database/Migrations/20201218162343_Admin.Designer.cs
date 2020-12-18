@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pracka.Cup.Database;
 
 namespace Pracka.Cup.Database.Migrations
 {
     [DbContext(typeof(CupContext))]
-    partial class CupContextModelSnapshot : ModelSnapshot
+    [Migration("20201218162343_Admin")]
+    partial class Admin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,25 +190,25 @@ namespace Pracka.Cup.Database.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 668, DateTimeKind.Utc).AddTicks(7966),
+                            CreatedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 374, DateTimeKind.Utc).AddTicks(323),
                             Icon = "BUFFALO_SABRES",
-                            ModifiedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 670, DateTimeKind.Utc).AddTicks(5397),
+                            ModifiedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 375, DateTimeKind.Utc).AddTicks(6564),
                             Name = "Buffalo"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 670, DateTimeKind.Utc).AddTicks(6453),
+                            CreatedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 375, DateTimeKind.Utc).AddTicks(7652),
                             Icon = "BOSTON_BRUINS",
-                            ModifiedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 670, DateTimeKind.Utc).AddTicks(6470),
+                            ModifiedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 375, DateTimeKind.Utc).AddTicks(7670),
                             Name = "Boston"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 670, DateTimeKind.Utc).AddTicks(6493),
+                            CreatedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 375, DateTimeKind.Utc).AddTicks(7690),
                             Icon = "PHILADELPHIA_FLYERS",
-                            ModifiedUTC = new DateTime(2020, 12, 18, 17, 54, 52, 670, DateTimeKind.Utc).AddTicks(6495),
+                            ModifiedUTC = new DateTime(2020, 12, 18, 16, 23, 43, 375, DateTimeKind.Utc).AddTicks(7693),
                             Name = "Philadelpia"
                         });
                 });

@@ -15,20 +15,20 @@
                 new PlayerModel()
                 {
                    Id = 1,
-                   FirstName = "Player",
-                   LastName = "1",
-                   Nickname = "Player1",
-                   CreatedUTC = DateTime.UtcNow,
-                   ModifiedUTC = DateTime.UtcNow,
-                   SelectedTeamId = 2
+                   FirstName = "Main",
+                   LastName = "Administrator",
+                   Nickname = "Admin",
+                   CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   SelectedTeamId = 1
                 }, new PlayerModel()
                 {
                    Id = 2,
                    FirstName = "Player",
                    LastName = "2",
                    Nickname = "Player2",
-                   CreatedUTC = DateTime.UtcNow,
-                   ModifiedUTC = DateTime.UtcNow,
+                   CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                    SelectedTeamId = 1
                 }, new PlayerModel()
                 {
@@ -36,9 +36,18 @@
                    FirstName = "Player",
                    LastName = "3",
                    Nickname = "Player3",
-                   CreatedUTC = DateTime.UtcNow,
-                   ModifiedUTC = DateTime.UtcNow,
-                    SelectedTeamId = 3
+                   CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   SelectedTeamId = 2
+                }, new PlayerModel()
+                {
+                   Id = 4,
+                   FirstName = "Player",
+                   LastName = "3",
+                   Nickname = "Player3",
+                   CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                   SelectedTeamId = 3
                 }
             };
         }
