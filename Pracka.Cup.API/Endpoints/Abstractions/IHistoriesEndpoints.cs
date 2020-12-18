@@ -10,8 +10,8 @@
 
     public interface IHistoriesEndpoints
     {
-        Task<IActionResult> GetAllHistories(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = HISTORIES)] HttpRequest req,
+        Task<IActionResult> Histories(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = HISTORIES)] HttpRequest req,
             ILogger log);
         Task<IActionResult> GetHistoryById(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = GET_HISTORY_BY_ID)] HttpRequest req,

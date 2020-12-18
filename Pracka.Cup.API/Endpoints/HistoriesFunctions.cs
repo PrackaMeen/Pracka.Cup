@@ -32,8 +32,34 @@ namespace Pracka.Cup.API.Endpoints
             _historiesService = new HistoriesService(base._context, base._mapper);
         }
 
-        [FunctionName(nameof(GetAllHistories))]
-        public async Task<IActionResult> GetAllHistories(
+        [FunctionName(nameof(Histories))]
+        public async Task<IActionResult> Histories(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = HISTORIES)] HttpRequest req,
+           ILogger log)
+        {
+            try
+            {
+                log.LogInformation($"C# HTTP trigger function processed a request {nameof(Histories)}.");
+
+                if( "get" == req.Method.ToLower())
+                {
+                    return await GetAllHistories(req, log);
+                }
+                else if("post" == req.Method.ToLower())
+                {
+                    return await BulkCreateHistories(req, log);
+                }
+
+                return new NotFoundResult();
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "_");
+                throw;
+            }
+        }
+
+        private async Task<IActionResult> GetAllHistories(
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = HISTORIES)] HttpRequest req,
            ILogger log)
         {
@@ -53,8 +79,7 @@ namespace Pracka.Cup.API.Endpoints
             }
         }
 
-        [FunctionName(nameof(BulkCreateHistories))]
-        public async Task<IActionResult> BulkCreateHistories(
+        private async Task<IActionResult> BulkCreateHistories(
            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = HISTORIES)] HttpRequest req,
            ILogger log)
         {
