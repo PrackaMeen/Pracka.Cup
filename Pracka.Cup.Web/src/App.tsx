@@ -24,16 +24,18 @@ function App() {
 
   return (
     <div className="App">
-      <Router hashType='noslash' >
-        <Switch>
-          <Redirect from='/' to={historyIndex} exact={true} />
-          {userStatsRoute(isMobileType)}
-          {historyRoute(isMobileType)}
-          {leagueRanksRoute(isMobileType)}
-          {organizeGameRoute(isMobileType)}
-          {gameResultsRoute(isMobileType)}
-        </Switch>
-      </Router>
+      <React.Suspense fallback={'Loading...'}>
+        <Router hashType='noslash' >
+          <Switch>
+            <Redirect from='/' to={historyIndex} exact={true} />
+            {userStatsRoute(isMobileType)}
+            {historyRoute(isMobileType)}
+            {leagueRanksRoute(isMobileType)}
+            {organizeGameRoute(isMobileType)}
+            {gameResultsRoute(isMobileType)}
+          </Switch>
+        </Router>
+      </React.Suspense>
     </div>
   );
 }

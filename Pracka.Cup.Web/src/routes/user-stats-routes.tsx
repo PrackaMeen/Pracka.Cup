@@ -1,7 +1,7 @@
 import React from "react"
 import { Route } from "react-router-dom"
-import UserStatsView from "../views/classic/user-stats-view"
-import UserStatsMobileView from "../views/mobile/user-stats-mobile-view"
+const UserStatsView = React.lazy(() => import("../views/classic/user-stats-view"))
+const UserStatsMobileView = React.lazy(() => import("../views/mobile/user-stats-mobile-view"))
 
 export const index = '/user-stats'
 export const userStatsRoute = (isMobileDevice: boolean) => (

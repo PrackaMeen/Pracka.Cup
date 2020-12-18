@@ -1,7 +1,7 @@
 import React from "react"
 import { Route } from "react-router-dom"
-import GameResultsView from "../views/classic/game-results-view"
-import GameResultsMobileView from "../views/mobile/game-results-mobile-view"
+const GameResultsView = React.lazy(() => import("../views/classic/game-results-view"))
+const GameResultsMobileView = React.lazy(() => import("../views/mobile/game-results-mobile-view"))
 
 export const index = `/game/:gameId/results`
 export function getGameResultsRoute(args: { gameId: number | string }) {
