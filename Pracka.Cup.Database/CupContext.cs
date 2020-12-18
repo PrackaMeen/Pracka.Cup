@@ -186,7 +186,6 @@
         }
         public CupContext CreateDbContext(string[] args)
         {
-            Environment.SetEnvironmentVariable("PRACKA_CUP_CONNECTION_STRING", "Persist Security Info=False;Trusted_Connection=True;database=PrackaCup;server=.");
             var connectionString = null != args && args.Length > 0
                 ? args[0]
                 : _configuration?.GetConnectionString("PRACKA_CUP_CONNECTION_STRING")
