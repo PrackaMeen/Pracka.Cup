@@ -8,6 +8,7 @@
     using Pracka.Cup.API.Services.Abstractions;
     using Pracka.Cup.Database;
     using Pracka.Cup.Database.Enums;
+    using Pracka.Cup.Database.Helpers;
     using Pracka.Cup.Database.Models;
     using System;
     using System.Collections.Generic;
@@ -191,9 +192,21 @@
             return await this.GetAllHistories(withTeamsDetail: true, withPlayersDetail: true);
         }
 
+        public async Task<IEnumerable<ScoreBoardDto>> GetAllScoreBoards()
+        {
+            var allScoreBoards = await this._context.ScoreBoards
+                .Include((scoreBoard) => scoreBoard.Player)
+                .Include((scoreBoard) => scoreBoard.Player.SelectedTeam)
+                .OrderByDescending((scoreBoard) => scoreBoard.PointsPercentil)
+                .ToArrayAsync();
+
+            return _mapper.ToScoreBoardDtos(allScoreBoards);
+        }
+
         private async Task<int> getRankById(int gameId, int playerId)
         {
-            var scoreBoards = await this._context.ScoreBoards.FromSqlRaw($"SELECT * FROM [PrackaCup].[dbo].[GetScoreBoardBy]({gameId})")
+            var scoreBoards = await this._context.ScoreBoards
+                .GetCompleteStatistics(gameId)
                 .Include((scoreBoard) => scoreBoard.Player)
                 .ToArrayAsync();
 
@@ -203,7 +216,7 @@
                     return new
                     {
                         Player = score.Player,
-                        Points = score.Loss1pt + score.Wins2pts + score.Wins3pts
+                        Points = score.Loss1ptGames + 2 * score.Wins2ptsGames + 3 * score.Wins3ptsGames
                     };
                 })
                 .OrderByDescending((score) => score.Points)
@@ -212,7 +225,7 @@
             var playerRank = allRanks
                 .FirstOrDefault((score) => playerId == score.Player.Id);
 
-            if(null == playerRank)
+            if (null == playerRank)
             {
                 return scoreBoards.Length + 1;
             }

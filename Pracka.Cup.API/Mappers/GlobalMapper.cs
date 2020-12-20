@@ -13,6 +13,7 @@
                 configuration.AddProfile<PlayerProfile>();
                 configuration.AddProfile<TeamProfile>();
                 configuration.AddProfile<PlayerHistoryProfile>();
+                configuration.AddProfile<ScoreBoardProfile>();
             });
             //configurationProvider.CompileMappings();
 
