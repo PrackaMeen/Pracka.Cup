@@ -14,24 +14,24 @@
                 new TeamModel()
                 {
                     Id = 1,
-                    CreatedUTC = DateTime.Now,
-                    ModifiedUTC = DateTime.Now,
+                    CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                    ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                     Icon = "BUFFALO_SABRES",
                     Name = "Buffalo",
                 },
                 new TeamModel()
                 {
                     Id = 2,
-                    CreatedUTC = DateTime.Now,
-                    ModifiedUTC = DateTime.Now,
+                    CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                    ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                     Icon = "BOSTON_BRUINS",
                     Name = "Boston",
                 },
                 new TeamModel()
                 {
                     Id = 3,
-                    CreatedUTC = DateTime.Now,
-                    ModifiedUTC = DateTime.Now,
+                    CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
+                    ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                     Icon = "PHILADELPHIA_FLYERS",
                     Name = "Philadelpia",
                 }

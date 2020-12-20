@@ -109,7 +109,8 @@
                .HasForeignKey((player) => player.SelectedTeamId);
 
             SetAllDateTimePropertiesAsUTC(modelBuilder.Entity<PlayerModel>().Metadata.GetProperties());
-            modelBuilder.Entity<PlayerModel>().HasData(InitialPlayers.Get());
+            modelBuilder.Entity<PlayerModel>()
+                .HasData(InitialPlayers.Get());
             #endregion Player
 
             #region History

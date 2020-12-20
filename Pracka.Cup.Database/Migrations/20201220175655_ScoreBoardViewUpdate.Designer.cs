@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pracka.Cup.Database;
 
 namespace Pracka.Cup.Database.Migrations
 {
     [DbContext(typeof(CupContext))]
-    partial class CupContextModelSnapshot : ModelSnapshot
+    [Migration("20201220175655_ScoreBoardViewUpdate")]
+    partial class ScoreBoardViewUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,9 +152,9 @@ namespace Pracka.Cup.Database.Migrations
                             Id = 4,
                             CreatedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FirstName = "Player",
-                            LastName = "4",
+                            LastName = "3",
                             ModifiedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Nickname = "Player4",
+                            Nickname = "Player3",
                             SelectedTeamId = 3
                         });
                 });
@@ -188,25 +190,25 @@ namespace Pracka.Cup.Database.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 972, DateTimeKind.Utc).AddTicks(1386),
                             Icon = "BUFFALO_SABRES",
-                            ModifiedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 973, DateTimeKind.Utc).AddTicks(7083),
                             Name = "Buffalo"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 973, DateTimeKind.Utc).AddTicks(8161),
                             Icon = "BOSTON_BRUINS",
-                            ModifiedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 973, DateTimeKind.Utc).AddTicks(8178),
                             Name = "Boston"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 973, DateTimeKind.Utc).AddTicks(8195),
                             Icon = "PHILADELPHIA_FLYERS",
-                            ModifiedUTC = new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ModifiedUTC = new DateTime(2020, 12, 20, 17, 56, 54, 973, DateTimeKind.Utc).AddTicks(8198),
                             Name = "Philadelpia"
                         });
                 });

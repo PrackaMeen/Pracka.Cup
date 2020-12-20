@@ -43,8 +43,8 @@
                 {
                    Id = 4,
                    FirstName = "Player",
-                   LastName = "3",
-                   Nickname = "Player3",
+                   LastName = "4",
+                   Nickname = "Player4",
                    CreatedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                    ModifiedUTC = new DateTime(2020,01,01,0,0,0,DateTimeKind.Utc),
                    SelectedTeamId = 3
